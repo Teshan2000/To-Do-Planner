@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:to_do_planner/providers/taskProvider.dart';
 import 'package:to_do_planner/screens/home.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => TaskProvider()),
+    ],
+    child: const MyApp()
+  ));
 }
 
 class MyApp extends StatelessWidget {

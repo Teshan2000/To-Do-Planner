@@ -1,5 +1,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:to_do_planner/models/task.dart';
+import 'package:to_do_planner/providers/taskProvider.dart';
 
 class TaskForm extends StatefulWidget {
   const TaskForm({super.key});
@@ -11,6 +14,7 @@ class TaskForm extends StatefulWidget {
 class _TaskFormState extends State<TaskForm> {
   final _formKey = GlobalKey<FormState>();
   final _taskController = TextEditingController();
+  final _categoryController = TextEditingController();
   final _dateController = TextEditingController();
   final _timeController = TextEditingController();
 
@@ -30,6 +34,7 @@ class _TaskFormState extends State<TaskForm> {
           ),
           TextFormField(
             controller: _taskController,
+            cursorColor: Colors.white,
             style: const TextStyle(color: Colors.white),
             decoration: const InputDecoration(
               hintText: "Title",
@@ -44,7 +49,8 @@ class _TaskFormState extends State<TaskForm> {
             height: 25,
           ),
           TextFormField(
-            controller: _taskController,
+            controller: _categoryController,
+            cursorColor: Colors.white,
             style: const TextStyle(color: Colors.white),
             decoration: const InputDecoration(
               hintText: "Select Category",
@@ -61,6 +67,7 @@ class _TaskFormState extends State<TaskForm> {
           TextFormField(
             controller: _dateController,
             readOnly: true,
+            cursorColor: Colors.white,
             style: const TextStyle(color: Colors.white),
             decoration: const InputDecoration(
               hintText: "Select Date",
@@ -109,9 +116,15 @@ class _TaskFormState extends State<TaskForm> {
                 _dateController.text = "Today";
               } else if (diff == 1) {
                 _dateController.text = "Tomorrow";
-              } else {
+              } else if (diff > 1 && date.month < 10) {
+                _dateController.text = "${date.day}-0${date.month}-${date.year}";
+              } else if (diff > 1 && date.month > 10) {
                 _dateController.text = "${date.day}-${date.month}-${date.year}";
-              }
+              } else if (diff > 1 && date.day < 10) {
+                _dateController.text = "0${date.day}-${date.month}-${date.year}";
+              } else if (diff > 1 && date.day > 10) {
+                _dateController.text = "${date.day}-${date.month}-${date.year}";
+              } 
             },
           ),
           const SizedBox(
@@ -120,6 +133,7 @@ class _TaskFormState extends State<TaskForm> {
           TextFormField(
             controller: _timeController,
             readOnly: true,
+            cursorColor: Colors.white,
             style: const TextStyle(color: Colors.white),
             decoration: const InputDecoration(
               hintText: "Select Time",
@@ -134,13 +148,13 @@ class _TaskFormState extends State<TaskForm> {
                 builder: (context, child) {
                   return Theme(
                       data: Theme.of(context).copyWith(
-                          colorScheme: const ColorScheme.light(
-                              primary: Color.fromARGB(255, 15, 79, 189),
-                              secondary: Color.fromARGB(255, 15, 79, 189),
-                              surface: Colors.white,
-                              onSecondary: Colors.white,
-                              onSurface: Colors.black),
-                          textButtonTheme: TextButtonThemeData(
+                        colorScheme: const ColorScheme.light(
+                            primary: Color.fromARGB(255, 15, 79, 189),
+                            secondary: Color.fromARGB(255, 15, 79, 189),
+                            surface: Colors.white,
+                            onSecondary: Colors.white,
+                            onSurface: Colors.black),
+                        textButtonTheme: TextButtonThemeData(
                           style: TextButton.styleFrom(
                             foregroundColor:
                                 const Color.fromARGB(255, 15, 79, 189),
@@ -150,12 +164,28 @@ class _TaskFormState extends State<TaskForm> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),),
+                        ),
+                      ),
                       child: child!);
                 },
                 context: context,
                 initialTime: TimeOfDay.now(),
               );
+              if (time!.hour == 0 && time.minute == 0) {
+                _timeController.text = "12:${time.minute}0 AM";
+              } else if (time.hour < 12 && time.minute != 0) {
+                _timeController.text = "${time.hour}:${time.minute} AM";
+              } else if (time.hour < 12 && time.minute == 0) {
+                _timeController.text = "${time.hour}:${time.minute}0 AM";
+              } else if (time.hour == 12 && time.minute != 0) {
+                _timeController.text = "${time.hour}:${time.minute} PM";
+              } else if (time.hour == 12 && time.minute == 0) {
+                _timeController.text = "${time.hour}:${time.minute}0 PM";
+              } else if (time.hour > 12 && time.minute != 0) {
+                _timeController.text = "${time.hour - 12}:${time.minute} PM";
+              } else if (time.hour > 12 && time.minute == 0) {
+                _timeController.text = "${time.hour - 12}:${time.minute}0 PM";
+              } 
               log(time.toString());
             },
           ),
@@ -166,11 +196,24 @@ class _TaskFormState extends State<TaskForm> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                   child: const Text('Cancel',
                       style: TextStyle(color: Colors.white, fontSize: 20))),
               TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      final task = Task(
+                          title: _taskController.text,
+                          category: _categoryController.text,
+                          date: _dateController.text,
+                          time: _timeController.text);
+                      Provider.of<TaskProvider>(context, listen: false)
+                          .addTask(task);
+                      Navigator.of(context).pop();
+                    }
+                  },
                   child: const Text('Done',
                       style: TextStyle(color: Colors.white, fontSize: 20)))
             ],
