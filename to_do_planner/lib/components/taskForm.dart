@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:to_do_planner/models/category.dart';
 import 'package:to_do_planner/models/task.dart';
 import 'package:to_do_planner/providers/taskProvider.dart';
 
@@ -17,6 +18,19 @@ class _TaskFormState extends State<TaskForm> {
   final _categoryController = TextEditingController();
   final _dateController = TextEditingController();
   final _timeController = TextEditingController();
+  Category? _selectedCategory;
+
+  final List<Category> _categories = [
+    Category(name: 'Personal', icon: Icons.person),
+    Category(name: 'Work', icon: Icons.work),
+    Category(name: 'Health', icon: Icons.health_and_safety),
+    Category(name: 'Home', icon: Icons.home),
+    Category(name: 'Education', icon: Icons.menu_book),
+    Category(name: 'Food', icon: Icons.fastfood),
+    Category(name: 'Transport', icon: Icons.train),
+    Category(name: 'Shopping', icon: Icons.shopping_cart),
+    Category(name: 'Leisure', icon: Icons.sports_esports),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -48,19 +62,43 @@ class _TaskFormState extends State<TaskForm> {
           const SizedBox(
             height: 25,
           ),
-          TextFormField(
-            controller: _categoryController,
-            cursorColor: Colors.white,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              hintText: "Select Category",
-              labelText: "Select Category",
-              hintStyle: TextStyle(color: Colors.white),
-              labelStyle: TextStyle(color: Colors.white),
-              suffixIcon: Icon(Icons.collections_bookmark_outlined),
-              suffixIconColor: Colors.white,
-            ),
-          ),
+          DropdownButtonFormField<Category>(
+              value: _selectedCategory,
+              dropdownColor: const Color.fromARGB(255, 7, 36, 86),
+              decoration: const InputDecoration(
+                hintText: "Select Category",
+                labelText: "Select Category",
+                hintStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: Colors.white),
+                suffixIcon: Icon(Icons.collections_bookmark_outlined),
+                suffixIconColor: Colors.white,
+              ),
+              items: _categories.map((Category category) {
+                return DropdownMenuItem<Category>(
+                    value: category,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            category.name,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Icon(category.icon, color: Colors.white,)
+                        ],
+                      ),
+                    );
+              }).toList(),
+              onChanged: (Category? newValue) {
+                setState(() {
+                  _selectedCategory = newValue;
+                });
+              }),
           const SizedBox(
             height: 25,
           ),
@@ -117,14 +155,16 @@ class _TaskFormState extends State<TaskForm> {
               } else if (diff == 1) {
                 _dateController.text = "Tomorrow";
               } else if (diff > 1 && date.month < 10) {
-                _dateController.text = "${date.day}-0${date.month}-${date.year}";
+                _dateController.text =
+                    "${date.day}-0${date.month}-${date.year}";
               } else if (diff > 1 && date.month > 10) {
                 _dateController.text = "${date.day}-${date.month}-${date.year}";
               } else if (diff > 1 && date.day < 10) {
-                _dateController.text = "0${date.day}-${date.month}-${date.year}";
+                _dateController.text =
+                    "0${date.day}-${date.month}-${date.year}";
               } else if (diff > 1 && date.day > 10) {
                 _dateController.text = "${date.day}-${date.month}-${date.year}";
-              } 
+              }
             },
           ),
           const SizedBox(
@@ -185,7 +225,7 @@ class _TaskFormState extends State<TaskForm> {
                 _timeController.text = "${time.hour - 12}:${time.minute} PM";
               } else if (time.hour > 12 && time.minute == 0) {
                 _timeController.text = "${time.hour - 12}:${time.minute}0 PM";
-              } 
+              }
               log(time.toString());
             },
           ),
@@ -206,7 +246,7 @@ class _TaskFormState extends State<TaskForm> {
                     if (_formKey.currentState!.validate()) {
                       final task = Task(
                           title: _taskController.text,
-                          category: _categoryController.text,
+                          category: _selectedCategory!,
                           date: _dateController.text,
                           time: _timeController.text);
                       Provider.of<TaskProvider>(context, listen: false)

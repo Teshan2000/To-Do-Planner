@@ -40,8 +40,9 @@ class _HomeState extends State<Home> {
                       subtitle: Text(
                         "${task.date}, ${task.time}",
                         style: const TextStyle(
-                            color: Color.fromARGB(255, 15, 79, 189)),
+                            color: Color.fromARGB(255, 103, 153, 239)),
                       ),
+                      trailing: Icon(task.category.icon, color: Colors.white,)
                     );
                   },
                   itemCount: taskProvider.tasks.length,
