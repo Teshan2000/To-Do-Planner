@@ -5,11 +5,13 @@ class Task {
   final Category category;
   final String date;
   final String time;
+  final String reminder;
 
   Task({
     required this.title,
     required this.category,
     required this.date,
     required this.time,
+    required this.reminder,
   });
 }

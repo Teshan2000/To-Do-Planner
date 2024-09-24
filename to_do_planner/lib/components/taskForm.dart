@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_planner/models/category.dart';
 import 'package:to_do_planner/models/task.dart';
@@ -19,6 +20,8 @@ class _TaskFormState extends State<TaskForm> {
   final _dateController = TextEditingController();
   final _timeController = TextEditingController();
   Category? _selectedCategory;
+  String? _selectedReminder;
+  bool _reminderEnabled = false;
 
   final List<Category> _categories = [
     Category(name: 'Personal', icon: Icons.person),
@@ -30,6 +33,17 @@ class _TaskFormState extends State<TaskForm> {
     Category(name: 'Transport', icon: Icons.train),
     Category(name: 'Shopping', icon: Icons.shopping_cart),
     Category(name: 'Leisure', icon: Icons.sports_esports),
+  ];
+
+  final List<String> _reminderOptions = [
+    '5 minutes before',
+    '10 minutes before',
+    '15 minutes before',
+    '20 minutes before',
+    '1 hour before',
+    '2 hours before',
+    '1 day before',
+    '2 days before',
   ];
 
   @override
@@ -75,24 +89,27 @@ class _TaskFormState extends State<TaskForm> {
               ),
               items: _categories.map((Category category) {
                 return DropdownMenuItem<Category>(
-                    value: category,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            category.name,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Icon(category.icon, color: Colors.white,)
-                        ],
+                  value: category,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        category.name,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
                       ),
-                    );
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        category.icon,
+                        color: Colors.white,
+                      )
+                    ],
+                  ),
+                );
               }).toList(),
               onChanged: (Category? newValue) {
                 setState(() {
@@ -233,6 +250,57 @@ class _TaskFormState extends State<TaskForm> {
             height: 30,
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Add Reminder',
+                  style: TextStyle(color: Colors.white, fontSize: 18)),
+              FlutterSwitch(
+                value: _reminderEnabled,
+                onToggle: (val) {
+                  setState(() {
+                    _reminderEnabled = val;
+                  });
+                },
+                activeColor: const Color.fromARGB(255, 7, 36, 86),
+                inactiveColor: const Color.fromARGB(255, 103, 153, 239),
+                height: 30,
+                width: 60,
+              )
+            ],
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          if (_reminderEnabled)
+            DropdownButtonFormField<String>(
+              value: _selectedReminder,
+              dropdownColor: const Color.fromARGB(255, 7, 36, 86),
+              decoration: const InputDecoration(
+                hintText: "Select Reminder",
+                labelText: "Select Reminder",
+                hintStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: Colors.white),
+                suffixIcon: Icon(Icons.notifications_outlined),
+                suffixIconColor: Colors.white,
+              ),
+              items: _reminderOptions.map((String option) {
+                return DropdownMenuItem<String>(
+                  value: option,
+                  child: Text(
+                    option,
+                    style: const TextStyle(color: Colors.white, fontSize: 16)
+                  )
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedReminder = newValue;
+                });
+              }),
+          const SizedBox(
+            height: 30,
+          ),
+          Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
@@ -248,7 +316,9 @@ class _TaskFormState extends State<TaskForm> {
                           title: _taskController.text,
                           category: _selectedCategory!,
                           date: _dateController.text,
-                          time: _timeController.text);
+                          time: _timeController.text,
+                          reminder: _selectedReminder!
+                      );
                       Provider.of<TaskProvider>(context, listen: false)
                           .addTask(task);
                       Navigator.of(context).pop();

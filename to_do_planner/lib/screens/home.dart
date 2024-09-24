@@ -73,7 +73,7 @@ class _HomeState extends State<Home> {
                           children: [
                             SingleChildScrollView(
                               child: Container(
-                                height: 490,
+                                height: 625,
                                 width: double.infinity,
                                 padding:
                                     const EdgeInsets.fromLTRB(25, 30, 25, 25),
