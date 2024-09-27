@@ -21,6 +21,7 @@ class _TaskFormState extends State<TaskForm> {
   final _timeController = TextEditingController();
   Category? _selectedCategory;
   String? _selectedReminder;
+  String? _selectedRepeat;
   bool _reminderEnabled = false;
 
   final List<Category> _categories = [
@@ -44,6 +45,10 @@ class _TaskFormState extends State<TaskForm> {
     '2 hours before',
     '1 day before',
     '2 days before',
+  ];
+
+  final List<String> _repeatOptions = [
+    'Hourly', 'Daily', 'Weekly', 'Monthly', 'Yearly',
   ];
 
   @override
@@ -261,10 +266,13 @@ class _TaskFormState extends State<TaskForm> {
                     _reminderEnabled = val;
                   });
                 },
+                activeToggleColor: Colors.white,
                 activeColor: const Color.fromARGB(255, 7, 36, 86),
-                inactiveColor: const Color.fromARGB(255, 103, 153, 239),
+                inactiveToggleColor: const Color.fromARGB(255, 103, 153, 239),
+                inactiveColor: Colors.white,
                 height: 30,
                 width: 60,
+                borderRadius: 30.0,                
               )
             ],
           ),
@@ -296,10 +304,42 @@ class _TaskFormState extends State<TaskForm> {
                 setState(() {
                   _selectedReminder = newValue;
                 });
-              }),
-          const SizedBox(
-            height: 30,
-          ),
+              }
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            if (_reminderEnabled)
+            DropdownButtonFormField<String>(
+              value: _selectedRepeat,
+              dropdownColor: const Color.fromARGB(255, 7, 36, 86),
+              decoration: const InputDecoration(
+                hintText: "Select Repeat",
+                labelText: "Select Repeat",
+                hintStyle: TextStyle(color: Colors.white),
+                labelStyle: TextStyle(color: Colors.white),
+                suffixIcon: Icon(Icons.repeat),
+                suffixIconColor: Colors.white,
+              ),
+              items: _repeatOptions.map((String option) {
+                return DropdownMenuItem<String>(
+                  value: option,
+                  child: Text(
+                    option,
+                    style: const TextStyle(color: Colors.white, fontSize: 16)
+                  )
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedRepeat = newValue;
+                });
+              }
+            ),
+            if (_reminderEnabled)
+            const SizedBox(
+              height: 20,
+            ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -317,7 +357,8 @@ class _TaskFormState extends State<TaskForm> {
                           category: _selectedCategory!,
                           date: _dateController.text,
                           time: _timeController.text,
-                          reminder: _selectedReminder!
+                          reminder: _selectedReminder!,
+                          repeat: _selectedRepeat!,
                       );
                       Provider.of<TaskProvider>(context, listen: false)
                           .addTask(task);

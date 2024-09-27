@@ -6,6 +6,7 @@ class Task {
   final String date;
   final String time;
   final String reminder;
+  final String repeat;
 
   Task({
     required this.title,
@@ -13,5 +14,6 @@ class Task {
     required this.date,
     required this.time,
     required this.reminder,
+    required this.repeat,
   });
 }

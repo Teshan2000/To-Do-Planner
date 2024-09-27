@@ -62,22 +62,25 @@ class _HomeState extends State<Home> {
         onPressed: () async {
           showDialog(
               context: context,
-              builder: (_) => Padding(
-                    padding: const EdgeInsets.all(10),
+              builder: (_) => const Padding(
+                    padding: EdgeInsets.all(10),
                     child: Dialog(
-                      backgroundColor: const Color.fromARGB(255, 15, 79, 189),
-                      insetPadding: const EdgeInsets.all(10),
+                      backgroundColor: Color.fromARGB(255, 15, 79, 189),
+                      insetPadding: EdgeInsets.all(10),
                       child: Stack(
                           clipBehavior: Clip.none,
                           alignment: Alignment.center,
                           children: [
                             SingleChildScrollView(
-                              child: Container(
-                                height: 625,
-                                width: double.infinity,
-                                padding:
-                                    const EdgeInsets.fromLTRB(25, 30, 25, 25),
-                                child: const TaskForm(),
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(25, 30, 25, 25),
+                                child: Expanded(
+                                  // height: 700,
+                                  // width: double.infinity,
+                                  // padding:
+                                  //     const EdgeInsets.fromLTRB(25, 30, 25, 25),
+                                  child: TaskForm(),
+                                ),
                               ),
                             ),
                           ]),
