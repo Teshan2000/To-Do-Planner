@@ -42,7 +42,7 @@ class _HomeState extends State<Home> {
                         style: const TextStyle(
                             color: Color.fromARGB(255, 103, 153, 239)),
                       ),
-                      trailing: Icon(task.category.icon, color: Colors.white,)
+                      trailing: Icon(task.category?.icon, color: Colors.white,)
                     );
                   },
                   itemCount: taskProvider.tasks.length,

@@ -4,6 +4,7 @@ import 'package:flutter_switch/flutter_switch.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_planner/models/category.dart';
 import 'package:to_do_planner/models/task.dart';
+import 'package:to_do_planner/providers/notificationService.dart';
 import 'package:to_do_planner/providers/taskProvider.dart';
 
 class TaskForm extends StatefulWidget {
@@ -23,6 +24,13 @@ class _TaskFormState extends State<TaskForm> {
   String? _selectedReminder;
   String? _selectedRepeat;
   bool _reminderEnabled = false;
+  final Notificationservice notificationservice = Notificationservice();
+
+  @override
+  void initState() {
+    super.initState();
+    notificationservice.initialize();
+  }
 
   final List<Category> _categories = [
     Category(name: 'Personal', icon: Icons.person),
@@ -48,7 +56,11 @@ class _TaskFormState extends State<TaskForm> {
   ];
 
   final List<String> _repeatOptions = [
-    'Hourly', 'Daily', 'Weekly', 'Monthly', 'Yearly',
+    'Hourly',
+    'Daily',
+    'Weekly',
+    'Monthly',
+    'Yearly',
   ];
 
   @override
@@ -139,29 +151,26 @@ class _TaskFormState extends State<TaskForm> {
             ),
             onTap: () async {
               DateTime? date = await showDatePicker(
-                  builder: (context, child) {
-                    return Theme(
-                      data: Theme.of(context).copyWith(
-                        colorScheme: const ColorScheme.light(
-                          primary: Color.fromARGB(255, 15, 79, 189),
-                          onPrimary: Colors.white,
-                          onSurface: Colors.black,
-                        ),
-                        textButtonTheme: TextButtonThemeData(
-                          style: TextButton.styleFrom(
-                            foregroundColor:
-                                const Color.fromARGB(255, 15, 79, 189),
-                            backgroundColor: Colors.white,
-                            textStyle: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      child: child!,
-                    );
-                  },
+                  builder: (context, child) => Theme(
+                      data: ThemeData().copyWith(
+                          datePickerTheme: const DatePickerThemeData(
+                              headerBackgroundColor:
+                                  Color.fromARGB(255, 5, 46, 80),
+                              headerForegroundColor: Colors.white,
+                              cancelButtonStyle: ButtonStyle(
+                                  foregroundColor:
+                                      WidgetStatePropertyAll(Colors.white)),
+                              confirmButtonStyle: ButtonStyle(
+                                  foregroundColor:
+                                      WidgetStatePropertyAll(Colors.white)),
+                              backgroundColor: Color.fromARGB(255, 0, 82, 223),
+                              dividerColor: Color.fromARGB(255, 5, 46, 80)),
+                          colorScheme: const ColorScheme.light(
+                            primary: Colors.blueAccent,
+                            onPrimary: Colors.white,
+                            onSurface: Colors.white,
+                          )),
+                      child: child!),
                   context: context,
                   initialDate: DateTime.now(),
                   firstDate: DateTime(2024),
@@ -207,33 +216,39 @@ class _TaskFormState extends State<TaskForm> {
             ),
             onTap: () async {
               TimeOfDay? time = await showTimePicker(
-                builder: (context, child) {
-                  return Theme(
-                      data: Theme.of(context).copyWith(
-                        colorScheme: const ColorScheme.light(
-                            primary: Color.fromARGB(255, 15, 79, 189),
-                            secondary: Color.fromARGB(255, 15, 79, 189),
-                            surface: Colors.white,
-                            onSecondary: Colors.white,
-                            onSurface: Colors.black),
-                        textButtonTheme: TextButtonThemeData(
-                          style: TextButton.styleFrom(
-                            foregroundColor:
-                                const Color.fromARGB(255, 15, 79, 189),
-                            backgroundColor: Colors.white,
-                            textStyle: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                builder: (context, child) => Theme(
+                    data: ThemeData().copyWith(
+                        timePickerTheme: const TimePickerThemeData(
+                            backgroundColor: Color.fromARGB(255, 5, 46, 80),
+                            dialBackgroundColor:
+                                Color.fromARGB(255, 0, 82, 223),
+                            dialHandColor: Colors.blueAccent,
+                            entryModeIconColor: Colors.white,
+                            cancelButtonStyle: ButtonStyle(
+                                foregroundColor:
+                                    WidgetStatePropertyAll(Colors.white)),
+                            confirmButtonStyle: ButtonStyle(
+                                foregroundColor:
+                                    WidgetStatePropertyAll(Colors.white)),
+                            hourMinuteTextColor: Colors.white,
+                            helpTextStyle: TextStyle(
+                              color: Colors.white,
                             ),
-                          ),
-                        ),
-                      ),
-                      child: child!);
-                },
+                            hourMinuteColor: Color.fromARGB(255, 0, 82, 223),
+                            dayPeriodColor: Color.fromARGB(255, 0, 82, 223),
+                            dayPeriodTextColor: Colors.white),
+                        colorScheme: const ColorScheme.light(
+                          onSurface: Colors.white,
+                          primary: Colors.blueAccent,
+                          onPrimary: Colors.white,
+                        )),
+                    child: child!),
                 context: context,
                 initialTime: TimeOfDay.now(),
               );
-              if (time!.hour == 0 && time.minute == 0) {
+              if (time!.hour == 0 && time.minute != 0) {
+                _timeController.text = "12:${time.minute} AM";
+              } else if (time.hour == 0 && time.minute == 0) {
                 _timeController.text = "12:${time.minute}0 AM";
               } else if (time.hour < 12 && time.minute != 0) {
                 _timeController.text = "${time.hour}:${time.minute} AM";
@@ -272,7 +287,7 @@ class _TaskFormState extends State<TaskForm> {
                 inactiveColor: Colors.white,
                 height: 30,
                 width: 60,
-                borderRadius: 30.0,                
+                borderRadius: 30.0,
               )
             ],
           ),
@@ -281,62 +296,56 @@ class _TaskFormState extends State<TaskForm> {
           ),
           if (_reminderEnabled)
             DropdownButtonFormField<String>(
-              value: _selectedReminder,
-              dropdownColor: const Color.fromARGB(255, 7, 36, 86),
-              decoration: const InputDecoration(
-                hintText: "Select Reminder",
-                labelText: "Select Reminder",
-                hintStyle: TextStyle(color: Colors.white),
-                labelStyle: TextStyle(color: Colors.white),
-                suffixIcon: Icon(Icons.notifications_outlined),
-                suffixIconColor: Colors.white,
-              ),
-              items: _reminderOptions.map((String option) {
-                return DropdownMenuItem<String>(
-                  value: option,
-                  child: Text(
-                    option,
-                    style: const TextStyle(color: Colors.white, fontSize: 16)
-                  )
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedReminder = newValue;
-                });
-              }
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            if (_reminderEnabled)
+                value: _selectedReminder,
+                dropdownColor: const Color.fromARGB(255, 7, 36, 86),
+                decoration: const InputDecoration(
+                  hintText: "Select Reminder",
+                  labelText: "Select Reminder",
+                  hintStyle: TextStyle(color: Colors.white),
+                  labelStyle: TextStyle(color: Colors.white),
+                  suffixIcon: Icon(Icons.notifications_outlined),
+                  suffixIconColor: Colors.white,
+                ),
+                items: _reminderOptions.map((String option) {
+                  return DropdownMenuItem<String>(
+                      value: option,
+                      child: Text(option,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 16)));
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedReminder = newValue;
+                  });
+                }),
+          const SizedBox(
+            height: 20,
+          ),
+          if (_reminderEnabled)
             DropdownButtonFormField<String>(
-              value: _selectedRepeat,
-              dropdownColor: const Color.fromARGB(255, 7, 36, 86),
-              decoration: const InputDecoration(
-                hintText: "Select Repeat",
-                labelText: "Select Repeat",
-                hintStyle: TextStyle(color: Colors.white),
-                labelStyle: TextStyle(color: Colors.white),
-                suffixIcon: Icon(Icons.repeat),
-                suffixIconColor: Colors.white,
-              ),
-              items: _repeatOptions.map((String option) {
-                return DropdownMenuItem<String>(
-                  value: option,
-                  child: Text(
-                    option,
-                    style: const TextStyle(color: Colors.white, fontSize: 16)
-                  )
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedRepeat = newValue;
-                });
-              }
-            ),
-            if (_reminderEnabled)
+                value: _selectedRepeat,
+                dropdownColor: const Color.fromARGB(255, 7, 36, 86),
+                decoration: const InputDecoration(
+                  hintText: "Select Repeat",
+                  labelText: "Select Repeat",
+                  hintStyle: TextStyle(color: Colors.white),
+                  labelStyle: TextStyle(color: Colors.white),
+                  suffixIcon: Icon(Icons.repeat),
+                  suffixIconColor: Colors.white,
+                ),
+                items: _repeatOptions.map((String option) {
+                  return DropdownMenuItem<String>(
+                      value: option,
+                      child: Text(option,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 16)));
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedRepeat = newValue;
+                  });
+                }),
+          if (_reminderEnabled)
             const SizedBox(
               height: 20,
             ),
@@ -353,12 +362,12 @@ class _TaskFormState extends State<TaskForm> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       final task = Task(
-                          title: _taskController.text,
-                          category: _selectedCategory!,
-                          date: _dateController.text,
-                          time: _timeController.text,
-                          reminder: _selectedReminder!,
-                          repeat: _selectedRepeat!,
+                        title: _taskController.text,
+                        category: _selectedCategory,
+                        date: _dateController.text,
+                        time: _timeController.text,
+                        reminder: _selectedReminder,
+                        repeat: _selectedRepeat,
                       );
                       Provider.of<TaskProvider>(context, listen: false)
                           .addTask(task);
