@@ -39,8 +39,36 @@ class Notificationservice {
       tz.TZDateTime.from(scheduledTime, tz.local),
       platformDetails,
       androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
+    );
+  }
+
+  Future<void> showRepeatingNotifications(
+    int id,
+    String title,
+    String body,
+    RepeatInterval repeatInterval,
+  ) async {
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      'repeat_channel', 
+      'Repeating Reminders',
+      importance: Importance.max,
+      priority: Priority.high
+    );
+
+    const NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails
+    );
+
+    await _notificationsPlugin.periodicallyShow(
+      id, 
+      title, 
+      body, 
+      repeatInterval, 
+      platformDetails,
+      androidAllowWhileIdle: true,
     );
   }
 

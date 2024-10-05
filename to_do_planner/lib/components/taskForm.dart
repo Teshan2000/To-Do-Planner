@@ -32,6 +32,45 @@ class _TaskFormState extends State<TaskForm> {
     notificationservice.initialize();
   }
 
+  void scheduleReminderNotifications() async {
+    if (_dateController.text != null && _selectedReminder != null) {
+      DateTime reminderTime = _dateController.text;
+      switch (_selectedReminder) {
+        case '5 minutes before':
+          reminderTime = reminderTime.subtract(const Duration(minutes: 5));
+          break;
+        case '10 minutes before':
+          reminderTime = reminderTime.subtract(const Duration(minutes: 10));
+          break;
+        case '15 minutes before':
+          reminderTime = reminderTime.subtract(const Duration(minutes: 15));
+          break;
+        case '20 minutes before':
+          reminderTime = reminderTime.subtract(const Duration(minutes: 20));
+          break;
+        case '1 hours before':
+          reminderTime = reminderTime.subtract(const Duration(hours: 1));
+          break;
+        case '2 hours before':
+          reminderTime = reminderTime.subtract(const Duration(hours: 2));
+          break;
+        case '1 days before':
+          reminderTime = reminderTime.subtract(const Duration(days: 1));
+          break;
+        case '2 days before':
+          reminderTime = reminderTime.subtract(const Duration(days: 2));
+          break;
+      }
+
+      notificationservice.showNotifications(
+        0, 
+        'Task Reminder', 
+        _taskController.text, 
+        reminderTime,
+      );
+    }
+  }
+
   final List<Category> _categories = [
     Category(name: 'Personal', icon: Icons.person),
     Category(name: 'Work', icon: Icons.work),
