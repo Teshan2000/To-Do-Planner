@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_planner/components/taskForm.dart';
 import 'package:to_do_planner/providers/taskProvider.dart';
+import 'package:to_do_planner/screens/editTasks.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -42,7 +43,12 @@ class _HomeState extends State<Home> {
                         style: const TextStyle(
                             color: Color.fromARGB(255, 103, 153, 239)),
                       ),
-                      trailing: Icon(task.category?.icon, color: Colors.white,)
+                      trailing: Icon(task.category?.icon, color: Colors.white,),
+                      onTap: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => Edittasks(task: task))
+                        );
+                      },
                     );
                   },
                   itemCount: taskProvider.tasks.length,

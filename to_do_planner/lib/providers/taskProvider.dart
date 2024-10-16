@@ -11,6 +11,14 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateTask(Task oldTask, Task newTask) {
+    int index = _tasks.indexOf(oldTask);
+    if (index != -1) {
+      _tasks[index] = newTask;
+      notifyListeners();
+    }
+  }
+
   void removeTask(int index) {
     _tasks.removeAt(index);
     notifyListeners();

@@ -6,9 +6,11 @@ import 'package:to_do_planner/models/category.dart';
 import 'package:to_do_planner/models/task.dart';
 import 'package:to_do_planner/providers/notificationService.dart';
 import 'package:to_do_planner/providers/taskProvider.dart';
+import 'package:to_do_planner/screens/home.dart';
 
 class TaskForm extends StatefulWidget {
-  const TaskForm({super.key});
+  final Task? task;
+  const TaskForm({super.key, this.task});
 
   @override
   State<TaskForm> createState() => _TaskFormState();
@@ -30,6 +32,15 @@ class _TaskFormState extends State<TaskForm> {
   void initState() {
     super.initState();
     notificationservice.initialize();
+    if (widget.task != null) {
+      _taskController.text = widget.task!.title;
+      // _selectedCategory = widget.task!.category;
+      _dateController.text = widget.task!.date;
+      _timeController.text = widget.task!.time;
+      _reminderEnabled = widget.task!.reminder != null;
+      _selectedReminder = widget.task!.reminder;
+      _selectedRepeat = widget.task!.repeat;
+    }
   }
 
   void scheduleReminderNotifications() async {
@@ -63,9 +74,9 @@ class _TaskFormState extends State<TaskForm> {
       }
 
       notificationservice.showNotifications(
-        0, 
-        'Task Reminder', 
-        _taskController.text, 
+        0,
+        'Task Reminder',
+        _taskController.text,
         reminderTime,
       );
     }
@@ -108,9 +119,10 @@ class _TaskFormState extends State<TaskForm> {
       key: _formKey,
       child: Column(
         children: [
-          const Text(
-            "Create a new Task",
-            style: TextStyle(
+          Text(
+            widget.task != null ?
+            "Edit your Task" : "Create a new Task",
+            style: const TextStyle(
                 color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(
@@ -397,7 +409,29 @@ class _TaskFormState extends State<TaskForm> {
                   },
                   child: const Text('Cancel',
                       style: TextStyle(color: Colors.white, fontSize: 20))),
+              widget.task != null ?
               TextButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      Task updatedTask = Task(
+                        title: _taskController.text,
+                        category: _selectedCategory,
+                        date: _dateController.text,
+                        time: _timeController.text,
+                        reminder: _selectedReminder,
+                        repeat: _selectedRepeat,
+                      );
+                      Provider.of<TaskProvider>(context, listen: false)
+                          .updateTask(widget.task!, updatedTask);
+                      Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => const Home()));
+                    }
+                  },
+                  child: const Text('Update',
+                    style: TextStyle(color: Colors.white, fontSize: 20)
+                  )
+                ) :
+                TextButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       final task = Task(
@@ -414,7 +448,9 @@ class _TaskFormState extends State<TaskForm> {
                     }
                   },
                   child: const Text('Done',
-                      style: TextStyle(color: Colors.white, fontSize: 20)))
+                    style: TextStyle(color: Colors.white, fontSize: 20)
+                  )
+                )
             ],
           ),
         ],
