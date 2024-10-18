@@ -33,21 +33,78 @@ class _HomeState extends State<Home> {
                   itemBuilder: (context, index) {
                     final task = taskProvider.tasks[index];
                     return ListTile(
+                      leading: SizedBox(
+                        width: 25,
+                        child: Checkbox(
+                            shape: const CircleBorder(
+                                side: BorderSide(width: 1.0)),
+                            value: task.isCompleted,
+                            onChanged: (value) {
+                              setState(() {
+                                task.isCompleted = value ?? false;
+                              });
+                              // taskProvider.updateTask(oldTask, newTask);
+                            }),
+                      ),
                       title: Text(
                         task.title,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 18),
+                        style: TextStyle(
+                          color: task.isCompleted ? Colors.grey : Colors.white,
+                          fontSize: 18,
+                          decoration: task.isCompleted
+                              ? TextDecoration.lineThrough
+                              : TextDecoration.none,
+                        ),
                       ),
                       subtitle: Text(
                         "${task.date}, ${task.time}",
                         style: const TextStyle(
                             color: Color.fromARGB(255, 103, 153, 239)),
                       ),
-                      trailing: Icon(task.category?.icon, color: Colors.white,),
+                      trailing: Icon(
+                        task.category?.icon,
+                        color: task.isCompleted ? Colors.grey : Colors.white,
+                      ),
                       onTap: () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => Edittasks(task: task))
-                        );
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => Edittasks(task: task)));
+                      },
+                      onLongPress: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                backgroundColor: const Color.fromARGB(255, 15, 79, 189),
+                                title: Text("Delete ${task.title} ?",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      taskProvider.removeTask(task);
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Delete", 
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Cancel", 
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            });
                       },
                     );
                   },

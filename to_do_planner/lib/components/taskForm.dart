@@ -405,7 +405,10 @@ class _TaskFormState extends State<TaskForm> {
             children: [
               TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    widget.task != null 
+                    ? Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => const Home()))
+                    : Navigator.of(context).pop();
                   },
                   child: const Text('Cancel',
                       style: TextStyle(color: Colors.white, fontSize: 20))),

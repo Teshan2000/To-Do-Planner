@@ -7,6 +7,7 @@ class Task {
   final String time;
   final String? reminder;
   final String? repeat;
+  bool isCompleted;
 
   Task({
     required this.title,
@@ -15,5 +16,6 @@ class Task {
     required this.time,
     this.reminder,
     this.repeat,
+    this.isCompleted = false, 
   });
 }
