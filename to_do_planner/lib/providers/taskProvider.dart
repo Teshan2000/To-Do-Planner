@@ -3,8 +3,10 @@ import 'package:to_do_planner/models/task.dart';
 
 class TaskProvider with ChangeNotifier {
   final List<Task> _tasks = [];
+  final List<Task> _completedTasks = [];
 
   List<Task> get tasks => _tasks;
+  List<Task> get completedTasks => _completedTasks;
 
   void addTask(Task task) {
     _tasks.add(task);
@@ -17,6 +19,20 @@ class TaskProvider with ChangeNotifier {
       _tasks[index] = newTask;
       notifyListeners();
     }
+  }
+
+  void completeTask(Task task) {
+    task.isCompleted = !task.isCompleted;
+    if (task.isCompleted) {
+      task.isCompleted = true;
+      tasks.remove(task);
+      _completedTasks.add(task);
+    } else {
+      task.isCompleted = false;
+      _completedTasks.remove(task);
+      tasks.add(task);
+    }
+    notifyListeners();
   }
 
   void removeTask(Task task) {
