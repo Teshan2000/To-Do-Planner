@@ -13,7 +13,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool isCompleted = false;
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,142 +27,286 @@ class _HomeState extends State<Home> {
       ),
       body: Consumer<TaskProvider>(
         builder: (context, taskProvider, _) {
-          return Column(
-            children: [
-              Expanded(
-                // height: 250,
-                child: ListView.separated(
-                  itemBuilder: (context, index) {
-                    final task = taskProvider.tasks[index];
-                    return ListTile(
-                        leading: SizedBox(
-                          width: 25,
-                          child: Checkbox(
-                              shape: const CircleBorder(
-                                  side: BorderSide(width: 1.0)),
-                              value: task.isCompleted,
-                              onChanged: (value) {
-                                setState(() {
-                                  taskProvider.completeTask(task);
-                                  isCompleted = true;
-                                });
-                              }),
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      final task = taskProvider.tasks[index];
+                      return Dismissible(
+                        key: Key(index.toString()),
+                        background: Container(
+                          color: const Color.fromARGB(255, 103, 153, 239),
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: const Icon(Icons.edit, color: Colors.white),
                         ),
-                        title: Text(
-                          task.title,
-                          style: TextStyle(
-                            color:
-                                task.isCompleted ? Colors.grey : Colors.white,
-                            fontSize: 18,
-                            decoration: task.isCompleted
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
+                        secondaryBackground: Container(
+                          color: const Color.fromARGB(255, 103, 153, 239),
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: const Icon(Icons.delete, color: Colors.white),                             
+                        ),
+                        confirmDismiss: (DismissDirection direction) async {
+                          if (direction == DismissDirection.endToStart) {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 15, 79, 189),
+                                    title: Text(
+                                      "Delete ${task.title} ?",
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          taskProvider.removeTask(task);
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text(
+                                          "Delete",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text(
+                                          "Cancel",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                });
+                          } else {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => Edittasks(task: task)));
+                          }
+                        },
+                        onDismissed: (direction) {
+                          if (direction == DismissDirection.endToStart) {
+                            taskProvider.removeTask(task);
+                          }
+                        },
+                        child: ListTile(
+                          leading: SizedBox(
+                            width: 25,
+                            child: Checkbox(
+                                shape: const CircleBorder(
+                                    side: BorderSide(width: 1.0)),
+                                value: task.isCompleted,
+                                onChanged: (value) {
+                                  setState(() {
+                                    taskProvider.completeTask(task);
+                                    isCompleted = true;
+                                  });
+                                }),
+                          ),
+                          title: Text(
+                            task.title,
+                            style: TextStyle(
+                              color:
+                                  task.isCompleted ? Colors.grey : Colors.white,
+                              fontSize: 18,
+                              decoration: task.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "${task.date}, ${task.time}",
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 103, 153, 239)),
+                          ),
+                          trailing: Icon(
+                            task.category?.icon,
+                            color: task.isCompleted ? Colors.grey : Colors.white,
+                          ),
+                          onTap: () {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => Edittasks(task: task)));
+                          },
+                        ),
+                      );
+                    },
+                    itemCount: taskProvider.tasks.length,
+                    separatorBuilder: (context, index) {
+                      return const Divider(
+                        color: Colors.white,
+                      );
+                    },                  
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                if(taskProvider.completedTasks.isNotEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 25),
+                  child: Row(children: <Widget>[
+                    Text(
+                     "Completed",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ]),
+                ),
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      final task = taskProvider.completedTasks[index];
+                      return Dismissible(
+                        key: Key(index.toString()),
+                        background: Container(
+                          color: const Color.fromARGB(255, 103, 153, 239),
+                          child: const Row(
+                            children: [
+                              SizedBox(
+                                width: 25,
+                              ),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Icon(Icons.edit, color: Colors.white)),
+                            ],
                           ),
                         ),
-                        subtitle: Text(
-                          "${task.date}, ${task.time}",
-                          style: const TextStyle(
-                              color: Color.fromARGB(255, 103, 153, 239)),
-                        ),
-                        trailing: Icon(
-                          task.category?.icon,
-                          color: task.isCompleted ? Colors.grey : Colors.white,
-                        ),
-                        onTap: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => Edittasks(task: task)));
-                        },
-                        onLongPress: () {
-                          setState(() {
-                            task.isCompleted = true;
-                          });
-                        },
-                      
-                    );
-                  },
-                  itemCount: taskProvider.tasks.length,
-                  separatorBuilder: (context, index) {
-                    return const Divider(
-                      color: Colors.white,
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: Row(children: <Widget>[
-                  Text(
-                    isCompleted ? "Completed" : "",
-                    textAlign: TextAlign.start,
-                    style: const TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ]),
-              ),
-              Expanded(
-                // height: 250,
-                child: ListView.separated(
-                  itemBuilder: (context, index) {
-                    final task = taskProvider.completedTasks[index];
-                    return ListTile(
-                        leading: SizedBox(
-                          width: 25,
-                          child: Checkbox(
-                              shape: const CircleBorder(
-                                  side: BorderSide(width: 1.0)),
-                              value: task.isCompleted,
-                              onChanged: (value) {
-                                setState(() {
-                                  taskProvider.completeTask(task);
-                                });
-                                // taskProvider.updateTask(oldTask, newTask);
-                              }),
-                        ),
-                        title: Text(
-                          task.title,
-                          style: TextStyle(
-                            color:
-                                task.isCompleted ? Colors.grey : Colors.white,
-                            fontSize: 18,
-                            decoration: task.isCompleted
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
+                        secondaryBackground: Container(
+                          color: const Color.fromARGB(255, 103, 153, 239),
+                          child: const Row(
+                            children: [
+                              Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Icon(Icons.delete, color: Colors.white)),
+                              SizedBox(
+                                width: 25,
+                              ),
+                            ],
                           ),
                         ),
-                        subtitle: Text(
-                          "${task.date}, ${task.time}",
-                          style: const TextStyle(
-                              color: Color.fromARGB(255, 103, 153, 239)),
-                        ),
-                        trailing: Icon(
-                          task.category?.icon,
-                          color: task.isCompleted ? Colors.grey : Colors.white,
-                        ),
-                        onTap: () {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => Edittasks(task: task)));
+                        confirmDismiss: (DismissDirection direction) async {
+                          if (direction == DismissDirection.endToStart) {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 15, 79, 189),
+                                    title: Text(
+                                      "Delete ${task.title} ?",
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          taskProvider.removeTask(task);
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text(
+                                          "Delete",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text(
+                                          "Cancel",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                });
+                          } else {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => Edittasks(task: task)));
+                          }
                         },
-                        onLongPress: () {
-                          setState(() {
-                            task.isCompleted = true;
-                          });
+                        onDismissed: (direction) {
+                          if (direction == DismissDirection.endToStart) {
+                            taskProvider.removeTask(task);
+                          }
                         },
-                      
-                    );
-                  },
-                  itemCount: taskProvider.completedTasks.length,
-                  separatorBuilder: (context, index) {
-                    return const Divider(
-                      color: Colors.white,
-                    );
-                  },
+                        child: ListTile(
+                          leading: SizedBox(
+                            width: 25,
+                            child: Checkbox(
+                                shape: const CircleBorder(
+                                    side: BorderSide(width: 1.0)),
+                                value: task.isCompleted,
+                                onChanged: (value) {
+                                  setState(() {
+                                    taskProvider.completeTask(task);
+                                  });
+                                  // taskProvider.updateTask(oldTask, newTask);
+                                }),
+                          ),
+                          title: Text(
+                            task.title,
+                            style: TextStyle(
+                              color:
+                                  task.isCompleted ? Colors.grey : Colors.white,
+                              fontSize: 18,
+                              decoration: task.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "${task.date}, ${task.time}",
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 103, 153, 239)),
+                          ),
+                          trailing: Icon(
+                            task.category?.icon,
+                            color: task.isCompleted ? Colors.grey : Colors.white,
+                          ),
+                          onTap: () {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => Edittasks(task: task)));
+                          },
+                          onLongPress: () {
+                            setState(() {
+                              task.isCompleted = true;
+                            });
+                          },
+                        ),
+                      );
+                    },
+                    itemCount: taskProvider.completedTasks.length,
+                    separatorBuilder: (context, index) {
+                      return const Divider(
+                        color: Colors.white,
+                      );
+                    },
+                  
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
@@ -205,3 +349,4 @@ class _HomeState extends State<Home> {
     );
   }
 }
+

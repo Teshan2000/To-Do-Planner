@@ -45,7 +45,7 @@ class _TaskFormState extends State<TaskForm> {
 
   void scheduleReminderNotifications() async {
     if (_dateController.text != null && _selectedReminder != null) {
-      DateTime reminderTime = _dateController.text;
+      DateTime reminderTime = _dateController.text as DateTime;
       switch (_selectedReminder) {
         case '5 minutes before':
           reminderTime = reminderTime.subtract(const Duration(minutes: 5));
