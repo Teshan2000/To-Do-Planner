@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_planner/models/category.dart';
 import 'package:to_do_planner/models/task.dart';
@@ -19,23 +21,24 @@ class TaskForm extends StatefulWidget {
 class _TaskFormState extends State<TaskForm> {
   final _formKey = GlobalKey<FormState>();
   final _taskController = TextEditingController();
-  final _categoryController = TextEditingController();
-  final _dateController = TextEditingController();
   final _timeController = TextEditingController();
+  DateTime? _selectedDate;
   Category? _selectedCategory;
   String? _selectedReminder;
   String? _selectedRepeat;
   bool _reminderEnabled = false;
-  final Notificationservice notificationservice = Notificationservice();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
     super.initState();
-    notificationservice.initialize();
     if (widget.task != null) {
       _taskController.text = widget.task!.title;
-      // _selectedCategory = widget.task!.category;
-      _dateController.text = widget.task!.date;
+      _selectedCategory = _categories.firstWhere(
+        (category) => category == widget.task!.category,
+      );
+      _selectedDate = widget.task!.date;
       _timeController.text = widget.task!.time;
       _reminderEnabled = widget.task!.reminder != null;
       _selectedReminder = widget.task!.reminder;
@@ -43,42 +46,86 @@ class _TaskFormState extends State<TaskForm> {
     }
   }
 
-  void scheduleReminderNotifications() async {
-    if (_dateController.text != null && _selectedReminder != null) {
-      DateTime reminderTime = _dateController.text as DateTime;
-      switch (_selectedReminder) {
-        case '5 minutes before':
-          reminderTime = reminderTime.subtract(const Duration(minutes: 5));
-          break;
-        case '10 minutes before':
-          reminderTime = reminderTime.subtract(const Duration(minutes: 10));
-          break;
-        case '15 minutes before':
-          reminderTime = reminderTime.subtract(const Duration(minutes: 15));
-          break;
-        case '20 minutes before':
-          reminderTime = reminderTime.subtract(const Duration(minutes: 20));
-          break;
-        case '1 hours before':
-          reminderTime = reminderTime.subtract(const Duration(hours: 1));
-          break;
-        case '2 hours before':
-          reminderTime = reminderTime.subtract(const Duration(hours: 2));
-          break;
-        case '1 days before':
-          reminderTime = reminderTime.subtract(const Duration(days: 1));
-          break;
-        case '2 days before':
-          reminderTime = reminderTime.subtract(const Duration(days: 2));
-          break;
+  void _saveTask(BuildContext context) {
+    if (_formKey.currentState!.validate()) {
+      if (_selectedDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please select a date")),
+        );
+        return;
+      }
+      final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+
+      final timeParts = _timeController.text.split(" ");
+      final rawTime = timeParts[0].split(":");
+      int hour = int.parse(rawTime[0]);
+      int minute = int.parse(rawTime[1]);
+      final timeFormat = timeParts[1].toLowerCase() == "pm";
+
+      if (timeFormat && hour != 12) {
+        hour += 12;
+      } else if (!timeFormat && hour == 12) {
+        hour = 0;
       }
 
-      notificationservice.showNotifications(
-        0,
-        'Task Reminder',
-        _taskController.text,
-        reminderTime,
+      DateTime taskDateTime = DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
+        hour,
+        minute,
       );
+
+      String formattedDate = DateFormat("dd-MM-yyyy").format(_selectedDate!);
+      String formattedTime = DateFormat("h:mm a").format(taskDateTime);
+
+      if (_selectedReminder != null) {
+        switch (_selectedReminder) {
+          case '5 minutes before':
+            taskDateTime = taskDateTime.subtract(const Duration(minutes: 5));
+            break;
+          case '10 minutes before':
+            taskDateTime = taskDateTime.subtract(const Duration(minutes: 10));
+            break;
+          case '15 minutes before':
+            taskDateTime = taskDateTime.subtract(const Duration(minutes: 15));
+            break;
+          case '1 hour before':
+            taskDateTime = taskDateTime.subtract(const Duration(hours: 1));
+            break;
+          case '1 day before':
+            taskDateTime = taskDateTime.subtract(const Duration(days: 1));
+            break;
+        }
+      }
+
+      final newTask = Task(
+        title: _taskController.text,
+        category: _selectedCategory,
+        date: _selectedDate!,
+        time: _timeController.text,
+        reminder: _reminderEnabled ? _selectedReminder : null,
+        repeat: _selectedRepeat,
+      );
+
+      if (widget.task != null) {
+        taskProvider.updateTask(widget.task!, newTask);
+      } else {
+        taskProvider.addTask(newTask);
+      }
+
+      if (_reminderEnabled) {
+        NotificationService.scheduleNotification(
+          title: "Task Reminder",
+          body: "Reminder for: ${_taskController.text}",
+          scheduledDate: taskDateTime,
+          repeat: _selectedRepeat,
+        );
+        print(
+            "Notification scheduled for: $taskDateTime with repeat: $_selectedRepeat");
+      }
+
+      Navigator.pop(context);
     }
   }
 
@@ -113,6 +160,20 @@ class _TaskFormState extends State<TaskForm> {
     'Yearly',
   ];
 
+  String formatTaskDate(DateTime taskDate) {
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+    DateTime tomorrow = today.add(const Duration(days: 1));
+
+    if (taskDate.isAtSameMomentAs(today)) {
+      return "Today";
+    } else if (taskDate.isAtSameMomentAs(tomorrow)) {
+      return "Tomorrow";
+    } else {
+      return DateFormat("dd-MM-yyyy").format(taskDate);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -120,8 +181,7 @@ class _TaskFormState extends State<TaskForm> {
       child: Column(
         children: [
           Text(
-            widget.task != null ?
-            "Edit your Task" : "Create a new Task",
+            widget.task != null ? "Edit your Task" : "Create a new Task",
             style: const TextStyle(
                 color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           ),
@@ -188,7 +248,9 @@ class _TaskFormState extends State<TaskForm> {
             height: 25,
           ),
           TextFormField(
-            controller: _dateController,
+            controller: TextEditingController(
+              text: _selectedDate != null ? formatTaskDate(_selectedDate!) : '',
+            ),
             readOnly: true,
             cursorColor: Colors.white,
             style: const TextStyle(color: Colors.white),
@@ -223,29 +285,13 @@ class _TaskFormState extends State<TaskForm> {
                           )),
                       child: child!),
                   context: context,
-                  initialDate: DateTime.now(),
+                  initialDate: _selectedDate ?? DateTime.now(),
                   firstDate: DateTime(2024),
                   lastDate: DateTime(2100));
-              log(date.toString());
-              DateTime currentDate = DateTime.now();
-              DateTime? now = DateTime(
-                  currentDate.year, currentDate.month, currentDate.day);
-              int diff = date!.difference(now).inDays;
-
-              if (diff == 0) {
-                _dateController.text = "Today";
-              } else if (diff == 1) {
-                _dateController.text = "Tomorrow";
-              } else if (diff > 1 && date.month < 10) {
-                _dateController.text =
-                    "${date.day}-0${date.month}-${date.year}";
-              } else if (diff > 1 && date.month > 10) {
-                _dateController.text = "${date.day}-${date.month}-${date.year}";
-              } else if (diff > 1 && date.day < 10) {
-                _dateController.text =
-                    "0${date.day}-${date.month}-${date.year}";
-              } else if (diff > 1 && date.day > 10) {
-                _dateController.text = "${date.day}-${date.month}-${date.year}";
+              if (date != null) {
+                setState(() {
+                  _selectedDate = date;
+                });
               }
             },
           ),
@@ -367,6 +413,7 @@ class _TaskFormState extends State<TaskForm> {
                 onChanged: (String? newValue) {
                   setState(() {
                     _selectedReminder = newValue;
+                    // _reminderEnabled = true;
                   });
                 }),
           const SizedBox(
@@ -405,55 +452,57 @@ class _TaskFormState extends State<TaskForm> {
             children: [
               TextButton(
                   onPressed: () {
-                    widget.task != null 
-                    ? Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => const Home()))
-                    : Navigator.of(context).pop();
+                    widget.task != null
+                        ? Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                                builder: (context) => const Home()))
+                        : Navigator.of(context).pop();
                   },
                   child: const Text('Cancel',
                       style: TextStyle(color: Colors.white, fontSize: 20))),
-              widget.task != null ?
-              TextButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Task updatedTask = Task(
-                        title: _taskController.text,
-                        category: _selectedCategory,
-                        date: _dateController.text,
-                        time: _timeController.text,
-                        reminder: _selectedReminder,
-                        repeat: _selectedRepeat,
-                      );
-                      Provider.of<TaskProvider>(context, listen: false)
-                          .updateTask(widget.task!, updatedTask);
-                      Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const Home()));
-                    }
-                  },
-                  child: const Text('Update',
-                    style: TextStyle(color: Colors.white, fontSize: 20)
-                  )
-                ) :
-                TextButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      final task = Task(
-                        title: _taskController.text,
-                        category: _selectedCategory,
-                        date: _dateController.text,
-                        time: _timeController.text,
-                        reminder: _selectedReminder,
-                        repeat: _selectedRepeat,
-                      );
-                      Provider.of<TaskProvider>(context, listen: false)
-                          .addTask(task);
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text('Done',
-                    style: TextStyle(color: Colors.white, fontSize: 20)
-                  )
-                )
+              widget.task != null
+                  ? TextButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          Task updatedTask = Task(
+                            title: _taskController.text,
+                            category: _selectedCategory,
+                            date: _selectedDate!,
+                            time: _timeController.text,
+                            reminder: _selectedReminder,
+                            repeat: _selectedRepeat,
+                          );
+                          Provider.of<TaskProvider>(context, listen: false)
+                              .updateTask(widget.task!, updatedTask);
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => const Home()));
+                        }
+                      },
+                      child: const Text('Update',
+                          style: TextStyle(color: Colors.white, fontSize: 20)))
+                  : TextButton(
+                      onPressed: () {
+                        // if (_formKey.currentState!.validate()) {
+                        // final task = Task(
+                        //   title: _taskController.text,
+                        //   category: _selectedCategory,
+                        //   date: _selectedDate!,
+                        //   time: _timeController.text,
+                        //   reminder: _selectedReminder,
+                        //   repeat: _selectedRepeat,
+                        // );
+                        // Provider.of<TaskProvider>(context, listen: false)
+                        //     .addTask(task);
+                        // if (_reminderEnabled) {
+                        //   scheduleReminderNotifications(context);
+                        // }
+                        // Navigator.of(context).pop();
+                        _saveTask(context);
+                        // }
+                      },
+                      child: const Text('Done',
+                          style: TextStyle(color: Colors.white, fontSize: 20)))
             ],
           ),
         ],

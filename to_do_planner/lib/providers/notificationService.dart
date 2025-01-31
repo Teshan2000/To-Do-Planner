@@ -1,78 +1,120 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
-class Notificationservice {
-  final FlutterLocalNotificationsPlugin _notificationsPlugin =
+class NotificationService {
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  Future<void> initialize() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
+  static Future<void> onDidReceiveNotification(
+      NotificationResponse notificationResponse) async {}
+
+  static Future<void> initNotification() async {
+    const AndroidInitializationSettings androidInitializationSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
     const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+        InitializationSettings(android: androidInitializationSettings);
 
-    await _notificationsPlugin.initialize(initializationSettings);
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: onDidReceiveNotification,
+      onDidReceiveBackgroundNotificationResponse: onDidReceiveNotification,
+    );
+
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
   }
 
-  Future<void> showNotifications(
-    int id,
-    String title,
-    String body,
-    DateTime scheduledTime,
-  ) async {
-    const AndroidNotificationDetails androidDetails =
-        AndroidNotificationDetails(
-      'reminder_channel',
-      'Task Reminders',
-      importance: Importance.max,
+  static Future<void> showNotification({String? title, String? body}) async {
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: AndroidNotificationDetails(
+      'channel_Id',
+      'Reminders',
+      channelDescription: 'This channel is for task reminders',
+      importance: Importance.high,
       priority: Priority.high,
-    );
+      playSound: true,
+    ));
 
-    const NotificationDetails platformDetails =
-        NotificationDetails(android: androidDetails);
+    await flutterLocalNotificationsPlugin.show(
+        0, title, body, platformChannelSpecifics);
+  }
 
-    await _notificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      tz.TZDateTime.from(scheduledTime, tz.local),
-      platformDetails,
-      androidAllowWhileIdle: true,
+  static Future<void> scheduleNotification(
+      {String? title,
+      String? body,
+      DateTime? scheduledDate,
+      String? repeat}) async {
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: AndroidNotificationDetails(
+      'channel_Id',
+      'Reminders',
+      channelDescription: 'This channel is for task reminders',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+    ));
+
+    DateTimeComponents? repeatInterval;
+
+    final tz.TZDateTime tzScheduledDate = tz.TZDateTime.from(scheduledDate!, tz.local);
+
+    if (repeat != null) {
+      switch (repeat) {
+        case 'Hourly':
+          await flutterLocalNotificationsPlugin.periodicallyShow(
+            0, title, body, RepeatInterval.everyMinute, 
+            platformChannelSpecifics, 
+            androidScheduleMode: AndroidScheduleMode.alarmClock
+          );
+          return;
+        case 'Daily':
+          await flutterLocalNotificationsPlugin.zonedSchedule(
+            0, title, body,
+            tzScheduledDate, platformChannelSpecifics, 
+            matchDateTimeComponents: DateTimeComponents.time,
+            androidScheduleMode: AndroidScheduleMode.alarmClock, 
+            uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          );
+          return;
+        case 'Weekly':
+          await flutterLocalNotificationsPlugin.zonedSchedule(
+            0, title, body,
+            tzScheduledDate, platformChannelSpecifics,
+            matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+            androidScheduleMode: AndroidScheduleMode.alarmClock,
+            uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          );
+          return;
+        case 'Monthly':
+          await flutterLocalNotificationsPlugin.zonedSchedule(
+            0, title, body,
+            tzScheduledDate, platformChannelSpecifics,
+            matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
+            androidScheduleMode: AndroidScheduleMode.alarmClock,
+            uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          );
+          return;
+        case 'Yearly':
+          await flutterLocalNotificationsPlugin.zonedSchedule(
+            0, title, body,
+            tzScheduledDate, platformChannelSpecifics,
+            matchDateTimeComponents: DateTimeComponents.dateAndTime, 
+            androidScheduleMode: AndroidScheduleMode.alarmClock,
+            uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          );
+          return;
+      }
+    }
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(0, title, body,
+      tzScheduledDate, platformChannelSpecifics,
       uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
+        UILocalNotificationDateInterpretation.absoluteTime,
+      androidScheduleMode: AndroidScheduleMode.alarmClock,
     );
-  }
-
-  Future<void> showRepeatingNotifications(
-    int id,
-    String title,
-    String body,
-    RepeatInterval repeatInterval,
-  ) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'repeat_channel', 
-      'Repeating Reminders',
-      importance: Importance.max,
-      priority: Priority.high
-    );
-
-    const NotificationDetails platformDetails = NotificationDetails(
-      android: androidDetails
-    );
-
-    await _notificationsPlugin.periodicallyShow(
-      id, 
-      title, 
-      body, 
-      repeatInterval, 
-      platformDetails,
-      androidAllowWhileIdle: true,
-    );
-  }
-
-  Future<void> cancelNotification(int id) async {
-    await _notificationsPlugin.cancel(id);
   }
 }
