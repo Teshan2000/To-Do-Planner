@@ -39,4 +39,12 @@ class TaskProvider with ChangeNotifier {
     _tasks.remove(task);
     notifyListeners();
   }
+
+  List<Task> getTasksByDate(DateTime date) {
+    return _tasks.where((task) {
+      return task.date.year == date.year &&
+          task.date.month == date.month &&
+          task.date.day == date.day;
+    }).toList();
+  }
 }
