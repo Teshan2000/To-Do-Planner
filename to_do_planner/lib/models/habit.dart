@@ -1,7 +1,9 @@
+import 'package:to_do_planner/models/category.dart';
+
 class Habit {
   final String title;
   final String time;
-  final String category;
+  final Category? category;
   final List<bool> completion;
   int streak;
   bool isCompleted;
@@ -17,23 +19,23 @@ class Habit {
     this.reminder,
   });
 
-  Map<String, dynamic> toJson() => {
-    'title': title,
-    'time': time,
-    'category': category,
-    'completion': completion,
-    'streak': streak,
-    'isCompleted': isCompleted,
-    'reminder': reminder,
-  };
+  // Map<String, dynamic> toJson() => {
+  //   'title': title,
+  //   'time': time,
+  //   'category': category,
+  //   'completion': completion,
+  //   'streak': streak,
+  //   'isCompleted': isCompleted,
+  //   'reminder': reminder,
+  // };
 
-  factory Habit.fromJson(Map<String, dynamic> json) => Habit(
-    title: json['title'], 
-    time: json['title'], 
-    category: json['title'],    
-    completion: List<bool>.from(json['completion']),
-    streak: json['streak'], 
-    isCompleted: json['isCompleted'], 
-    reminder: json['reminder'], 
-  );
+  // factory Habit.fromJson(Map<String, dynamic> json) => Habit(
+  //   title: json['title'], 
+  //   time: json['title'], 
+  //   category: json['title'],    
+  //   completion: List<bool>.from(json['completion']),
+  //   streak: json['streak'], 
+  //   isCompleted: json['isCompleted'], 
+  //   reminder: json['reminder'], 
+  // );
 }
