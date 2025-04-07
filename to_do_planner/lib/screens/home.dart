@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:to_do_planner/components/taskForm.dart';
-import 'package:to_do_planner/providers/taskProvider.dart';
-import 'package:to_do_planner/screens/calendar.dart';
-import 'package:to_do_planner/screens/editTasks.dart';
 import 'package:to_do_planner/screens/habitsScreen.dart';
-import 'package:to_do_planner/screens/newCalendar.dart';
 import 'package:to_do_planner/screens/tasksScreen.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -25,8 +19,8 @@ class _HomeState extends State<Home> {
   bool isCompleted = false;
 
   final List<Widget> _pages = [
-    TasksScreen(),
-    HabitsScreen(),
+    const TasksScreen(),
+    const HabitsScreen(),
   ];
 
   String formatTaskDate(DateTime taskDate) {
@@ -55,27 +49,37 @@ class _HomeState extends State<Home> {
         backgroundColor: const Color.fromARGB(255, 15, 79, 189),
       ),
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color.fromARGB(255, 15, 79, 189),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.black,
-        currentIndex: _selectedIndex,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.task),
-            label: "Tasks"
+      bottomNavigationBar: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.track_changes),
-            label: "Habits"
+          child: BottomNavigationBar(
+            backgroundColor: const Color.fromARGB(255, 15, 79, 189),
+            selectedItemColor: Colors.white,
+            unselectedItemColor: const Color.fromARGB(255, 103, 153, 239),
+            currentIndex: _selectedIndex,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.task_outlined),
+                activeIcon: Icon(Icons.task),
+                label: "Tasks",
+                tooltip: "Tasks",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.track_changes),
+                label: "Habits",
+                tooltip: "Habits",
+              ),
+            ],
+            onTap: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
           ),
-        ],
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-      ),
+        ),
+   
     );
   }
 }

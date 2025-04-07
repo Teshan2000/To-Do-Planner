@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:to_do_planner/providers/habitProvider.dart';
 import 'package:to_do_planner/providers/notificationService.dart';
 import 'package:to_do_planner/providers/taskProvider.dart';
 import 'package:to_do_planner/screens/home.dart';
@@ -12,7 +13,8 @@ void main() async {
   tz.initializeTimeZones();
 
   runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(create: (_) => TaskProvider()),
+    ChangeNotifierProvider(create: (context) => TaskProvider()),
+    ChangeNotifierProvider(create: (context) => HabitProvider()),
   ], child: const MyApp()));
 }
 

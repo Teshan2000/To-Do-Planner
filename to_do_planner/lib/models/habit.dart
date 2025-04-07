@@ -5,7 +5,7 @@ class Habit {
   final String time;
   final Category? category;
   final List<bool> completion;
-  int streak;
+  final int streak;
   bool isCompleted;
   String? reminder;
 
