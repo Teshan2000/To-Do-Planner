@@ -5,8 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_planner/models/category.dart';
 import 'package:to_do_planner/models/habit.dart';
-import 'package:to_do_planner/models/task.dart';
-import 'package:to_do_planner/providers/HabitProvider.dart';
+import 'package:to_do_planner/providers/habitProvider.dart';
 import 'package:to_do_planner/providers/notificationService.dart';
 import 'package:to_do_planner/screens/home.dart';
 
@@ -22,7 +21,7 @@ class _HabitFormState extends State<HabitForm> {
   final _formKey = GlobalKey<FormState>();
   final _habitController = TextEditingController();
   final _timeController = TextEditingController();
-  DateTime? _selectedDate;
+  // DateTime? _selectedDate;
   Category? _selectedCategory;
   String? _selectedReminder;
   String? _selectedRepeat;
@@ -40,91 +39,90 @@ class _HabitFormState extends State<HabitForm> {
       _timeController.text = widget.habit!.time;
       _reminderEnabled = widget.habit!.reminder != null;
       _selectedReminder = widget.habit!.reminder;
-      // _selectedRepeat = widget.habit!.repeat;
     }
   }
 
   void _saveHabit(BuildContext context) {
-    if (_formKey.currentState!.validate()) {
-      if (_selectedDate == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please select a date")),
-        );
-        return;
-      }
+    // if (_formKey.currentState!.validate()) {
+      // if (_selectedDate == null) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     const SnackBar(content: Text("Please select a date")),
+      //   );
+      //   return;
+      // }
       final habitProvider = Provider.of<HabitProvider>(context, listen: false);
 
-      final timeParts = _timeController.text.split(" ");
-      final rawTime = timeParts[0].split(":");
-      int hour = int.parse(rawTime[0]);
-      int minute = int.parse(rawTime[1]);
-      final timeFormat = timeParts[1].toLowerCase() == "pm";
+      // final timeParts = _timeController.text.split(" ");
+      // final rawTime = timeParts[0].split(":");
+      // int hour = int.parse(rawTime[0]);
+      // int minute = int.parse(rawTime[1]);
+      // final timeFormat = timeParts[1].toLowerCase() == "pm";
 
-      if (timeFormat && hour != 12) {
-        hour += 12;
-      } else if (!timeFormat && hour == 12) {
-        hour = 0;
-      }
+      // if (timeFormat && hour != 12) {
+      //   hour += 12;
+      // } else if (!timeFormat && hour == 12) {
+      //   hour = 0;
+      // }
 
-      DateTime habitDateTime = DateTime(
-        _selectedDate!.year,
-        _selectedDate!.month,
-        _selectedDate!.day,
-        hour,
-        minute,
-      );
+      // DateTime habitDateTime = DateTime(
+      //   _selectedDate!.year,
+      //   _selectedDate!.month,
+      //   _selectedDate!.day,
+      //   hour,
+      //   minute,
+      // );
 
-      String formattedDate = DateFormat("dd-MM-yyyy").format(_selectedDate!);
-      String formattedTime = DateFormat("h:mm a").format(habitDateTime);
+      // String formattedDate = DateFormat("dd-MM-yyyy").format(_selectedDate!);
+      // String formattedTime = DateFormat("h:mm a").format(habitDateTime);
 
-      if (_selectedReminder != null) {
-        switch (_selectedReminder) {
-          case '5 minutes before':
-            habitDateTime = habitDateTime.subtract(const Duration(minutes: 5));
-            break;
-          case '10 minutes before':
-            habitDateTime = habitDateTime.subtract(const Duration(minutes: 10));
-            break;
-          case '15 minutes before':
-            habitDateTime = habitDateTime.subtract(const Duration(minutes: 15));
-            break;
-          case '1 hour before':
-            habitDateTime = habitDateTime.subtract(const Duration(hours: 1));
-            break;
-          case '1 day before':
-            habitDateTime = habitDateTime.subtract(const Duration(days: 1));
-            break;
-        }
-      }
+      // if (_selectedReminder != null) {
+      //   switch (_selectedReminder) {
+      //     case '5 minutes before':
+      //       habitDateTime = habitDateTime.subtract(const Duration(minutes: 5));
+      //       break;
+      //     case '10 minutes before':
+      //       habitDateTime = habitDateTime.subtract(const Duration(minutes: 10));
+      //       break;
+      //     case '15 minutes before':
+      //       habitDateTime = habitDateTime.subtract(const Duration(minutes: 15));
+      //       break;
+      //     case '1 hour before':
+      //       habitDateTime = habitDateTime.subtract(const Duration(hours: 1));
+      //       break;
+      //     case '1 day before':
+      //       habitDateTime = habitDateTime.subtract(const Duration(days: 1));
+      //       break;
+      //   }
+      // }
 
       final newHabit = Habit(
         title: _habitController.text,
         category: _selectedCategory,
         // date: _selectedDate!,
         time: _timeController.text,
+        streak: 0,
         completion: [],
         reminder: _reminderEnabled ? _selectedReminder : null,
-        // repeat: _selectedRepeat,
       );
 
       if (widget.habit != null) {
         habitProvider.updateHabit(widget.habit!, newHabit);
       } else {
-        habitProvider.addHabit(widget.habit!);
+        habitProvider.addHabit(newHabit);
       }
 
-      if (_reminderEnabled) {
-        NotificationService.scheduleNotification(
-          title: "Habit Reminder",
-          body: "Reminder for: ${_habitController.text}",
-          scheduledDate: habitDateTime,
-          repeat: _selectedRepeat,
-        );
-        print(
-          "Notification scheduled for: $habitDateTime with repeat: $_selectedRepeat");
-      }
+      // if (_reminderEnabled) {
+      //   NotificationService.scheduleNotification(
+      //     title: "Habit Reminder",
+      //     body: "Reminder for: ${_habitController.text}",
+      //     scheduledDate: habitDateTime,
+      //     repeat: _selectedRepeat,
+      //   );
+      //   print(
+      //     "Notification scheduled for: $habitDateTime with repeat: $_selectedRepeat");
+      // }
       Navigator.pop(context);
-    }
+    // }
   }
 
   final List<Category> _categories = [
@@ -150,27 +148,27 @@ class _HabitFormState extends State<HabitForm> {
     '2 days before',
   ];
 
-  final List<String> _repeatOptions = [
-    'Hourly',
-    'Daily',
-    'Weekly',
-    'Monthly',
-    'Yearly',
-  ];
+  // final List<String> _repeatOptions = [
+  //   'Hourly',
+  //   'Daily',
+  //   'Weekly',
+  //   'Monthly',
+  //   'Yearly',
+  // ];
 
-  String formatTaskDate(DateTime taskDate) {
-    DateTime now = DateTime.now();
-    DateTime today = DateTime(now.year, now.month, now.day);
-    DateTime tomorrow = today.add(const Duration(days: 1));
+  // String formatTaskDate(DateTime taskDate) {
+  //   DateTime now = DateTime.now();
+  //   DateTime today = DateTime(now.year, now.month, now.day);
+  //   DateTime tomorrow = today.add(const Duration(days: 1));
 
-    if (taskDate.isAtSameMomentAs(today)) {
-      return "Today";
-    } else if (taskDate.isAtSameMomentAs(tomorrow)) {
-      return "Tomorrow";
-    } else {
-      return DateFormat("dd-MM-yyyy").format(taskDate);
-    }
-  }
+  //   if (taskDate.isAtSameMomentAs(today)) {
+  //     return "Today";
+  //   } else if (taskDate.isAtSameMomentAs(tomorrow)) {
+  //     return "Tomorrow";
+  //   } else {
+  //     return DateFormat("dd-MM-yyyy").format(taskDate);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +193,7 @@ class _HabitFormState extends State<HabitForm> {
               labelText: "Enter Title",
               hintStyle: TextStyle(color: Colors.white),
               labelStyle: TextStyle(color: Colors.white),
-              suffixIcon: Icon(Icons.task_outlined),
+              suffixIcon: Icon(Icons.track_changes),
               suffixIconColor: Colors.white,
             ),
           ),
@@ -245,57 +243,54 @@ class _HabitFormState extends State<HabitForm> {
           const SizedBox(
             height: 25,
           ),
-          TextFormField(
-            controller: TextEditingController(
-              text: _selectedDate != null ? formatTaskDate(_selectedDate!) : '',
-            ),
-            readOnly: true,
-            cursorColor: Colors.white,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              hintText: "Select Date",
-              labelText: "Select Date",
-              hintStyle: TextStyle(color: Colors.white),
-              labelStyle: TextStyle(color: Colors.white),
-              suffixIcon: Icon(Icons.calendar_month),
-              suffixIconColor: Colors.white,
-            ),
-            onTap: () async {
-              DateTime? date = await showDatePicker(
-                  builder: (context, child) => Theme(
-                      data: ThemeData().copyWith(
-                          datePickerTheme: const DatePickerThemeData(
-                              headerBackgroundColor:
-                                  Color.fromARGB(255, 5, 46, 80),
-                              headerForegroundColor: Colors.white,
-                              cancelButtonStyle: ButtonStyle(
-                                  foregroundColor:
-                                      WidgetStatePropertyAll(Colors.white)),
-                              confirmButtonStyle: ButtonStyle(
-                                  foregroundColor:
-                                      WidgetStatePropertyAll(Colors.white)),
-                              backgroundColor: Color.fromARGB(255, 0, 82, 223),
-                              dividerColor: Color.fromARGB(255, 5, 46, 80)),
-                          colorScheme: const ColorScheme.light(
-                            primary: Colors.blueAccent,
-                            onPrimary: Colors.white,
-                            onSurface: Colors.white,
-                          )),
-                      child: child!),
-                  context: context,
-                  initialDate: _selectedDate ?? DateTime.now(),
-                  firstDate: DateTime(2024),
-                  lastDate: DateTime(2100));
-              if (date != null) {
-                setState(() {
-                  _selectedDate = date;
-                });
-              }
-            },
-          ),
-          const SizedBox(
-            height: 25,
-          ),
+          // TextFormField(
+          //   controller: TextEditingController(
+          //     text: _selectedDate != null ? formatTaskDate(_selectedDate!) : '',
+          //   ),
+          //   readOnly: true,
+          //   cursorColor: Colors.white,
+          //   style: const TextStyle(color: Colors.white),
+          //   decoration: const InputDecoration(
+          //     hintText: "Select Date",
+          //     labelText: "Select Date",
+          //     hintStyle: TextStyle(color: Colors.white),
+          //     labelStyle: TextStyle(color: Colors.white),
+          //     suffixIcon: Icon(Icons.calendar_month),
+          //     suffixIconColor: Colors.white,
+          //   ),
+          //   onTap: () async {
+          //     DateTime? date = await showDatePicker(
+          //         builder: (context, child) => Theme(
+          //             data: ThemeData().copyWith(
+          //                 datePickerTheme: const DatePickerThemeData(
+          //                     headerBackgroundColor:
+          //                         Color.fromARGB(255, 5, 46, 80),
+          //                     headerForegroundColor: Colors.white,
+          //                     cancelButtonStyle: ButtonStyle(
+          //                         foregroundColor:
+          //                             WidgetStatePropertyAll(Colors.white)),
+          //                     confirmButtonStyle: ButtonStyle(
+          //                         foregroundColor:
+          //                             WidgetStatePropertyAll(Colors.white)),
+          //                     backgroundColor: Color.fromARGB(255, 0, 82, 223),
+          //                     dividerColor: Color.fromARGB(255, 5, 46, 80)),
+          //                 colorScheme: const ColorScheme.light(
+          //                   primary: Colors.blueAccent,
+          //                   onPrimary: Colors.white,
+          //                   onSurface: Colors.white,
+          //                 )),
+          //             child: child!),
+          //         context: context,
+          //         initialDate: _selectedDate ?? DateTime.now(),
+          //         firstDate: DateTime(2024),
+          //         lastDate: DateTime(2100));
+          //     if (date != null) {
+          //       setState(() {
+          //         _selectedDate = date;
+          //       });
+          //     }
+          //   },
+          // ),
           TextFormField(
             controller: _timeController,
             readOnly: true,
@@ -417,30 +412,30 @@ class _HabitFormState extends State<HabitForm> {
           const SizedBox(
             height: 20,
           ),
-          if (_reminderEnabled)
-            DropdownButtonFormField<String>(
-                value: _selectedRepeat,
-                dropdownColor: const Color.fromARGB(255, 7, 36, 86),
-                decoration: const InputDecoration(
-                  hintText: "Select Repeat",
-                  labelText: "Select Repeat",
-                  hintStyle: TextStyle(color: Colors.white),
-                  labelStyle: TextStyle(color: Colors.white),
-                  suffixIcon: Icon(Icons.repeat),
-                  suffixIconColor: Colors.white,
-                ),
-                items: _repeatOptions.map((String option) {
-                  return DropdownMenuItem<String>(
-                      value: option,
-                      child: Text(option,
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 16)));
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedRepeat = newValue;
-                  });
-                }),
+          // if (_reminderEnabled)
+          //   DropdownButtonFormField<String>(
+          //       value: _selectedRepeat,
+          //       dropdownColor: const Color.fromARGB(255, 7, 36, 86),
+          //       decoration: const InputDecoration(
+          //         hintText: "Select Repeat",
+          //         labelText: "Select Repeat",
+          //         hintStyle: TextStyle(color: Colors.white),
+          //         labelStyle: TextStyle(color: Colors.white),
+          //         suffixIcon: Icon(Icons.repeat),
+          //         suffixIconColor: Colors.white,
+          //       ),
+          //       items: _repeatOptions.map((String option) {
+          //         return DropdownMenuItem<String>(
+          //             value: option,
+          //             child: Text(option,
+          //                 style: const TextStyle(
+          //                     color: Colors.white, fontSize: 16)));
+          //       }).toList(),
+          //       onChanged: (String? newValue) {
+          //         setState(() {
+          //           _selectedRepeat = newValue;
+          //         });
+          //       }),
           if (_reminderEnabled)
             const SizedBox(
               height: 20,
@@ -466,10 +461,10 @@ class _HabitFormState extends State<HabitForm> {
                             title: _habitController.text,
                             category: _selectedCategory,
                             completion: [],
+                            streak: 0,
                             // date: _selectedDate!,
                             time: _timeController.text,
                             reminder: _selectedReminder,
-                            // repeat: _selectedRepeat,
                           );
                           Provider.of<HabitProvider>(context, listen: false)
                               .updateHabit(widget.habit!, updatedHabit);
