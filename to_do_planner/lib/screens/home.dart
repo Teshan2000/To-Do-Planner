@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
+import 'package:to_do_planner/screens/calendar.dart';
 import 'package:to_do_planner/screens/habitsScreen.dart';
+import 'package:to_do_planner/screens/newCalendar.dart';
 import 'package:to_do_planner/screens/tasksScreen.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -46,6 +48,17 @@ class _HomeState extends State<Home> {
           "To Do Planner",
           style: TextStyle(color: Colors.white),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => Calendar()));
+            }, 
+            icon: const Icon(Icons.calendar_month),
+            color: Colors.white,
+          ),
+        ],
         backgroundColor: const Color.fromARGB(255, 15, 79, 189),
       ),
       body: _pages[_selectedIndex],
