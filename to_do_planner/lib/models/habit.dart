@@ -2,40 +2,44 @@ import 'package:to_do_planner/models/category.dart';
 
 class Habit {
   final String title;
-  final String time;
+  final DateTime startDate;
   final Category? category;
-  final List<bool> completion;
+  final List<DateTime> completion;
   final int streak;
+  final String? reminder;
   bool isCompleted;
-  String? reminder;
 
-  Habit( {
-    required this.title, 
-    required this.time, 
-    required this.category, 
-    required this.completion, 
+  Habit({
+    required this.title,
+    required this.startDate,
+    required this.category,
+    this.completion = const [],
     this.streak = 0,
-    this.isCompleted = false,
     this.reminder,
+    this.isCompleted = false,
   });
 
-  // Map<String, dynamic> toJson() => {
-  //   'title': title,
-  //   'time': time,
-  //   'category': category,
-  //   'completion': completion,
-  //   'streak': streak,
-  //   'isCompleted': isCompleted,
-  //   'reminder': reminder,
-  // };
+  bool isCompletedToday() {
+    final now = DateTime.now();
+    return completion.any(
+        (d) => d.year == now.year && d.month == now.month && d.day == now.day);
+  }
 
-  // factory Habit.fromJson(Map<String, dynamic> json) => Habit(
-  //   title: json['title'], 
-  //   time: json['title'], 
-  //   category: json['title'],    
-  //   completion: List<bool>.from(json['completion']),
-  //   streak: json['streak'], 
-  //   isCompleted: json['isCompleted'], 
-  //   reminder: json['reminder'], 
-  // );
+  int getStreak() {
+    List<DateTime> sorted = [...completion]..sort((a, b) => b.compareTo(a));
+    int streak = 0;
+    DateTime day = DateTime.now();
+
+    for (final date in sorted) {
+      if (date.year == day.year &&
+          date.month == day.month &&
+          date.day == day.day) {
+        streak++;
+        day = day.subtract(const Duration(days: 1));
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
 }

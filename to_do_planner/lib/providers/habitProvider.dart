@@ -22,21 +22,41 @@ class HabitProvider with ChangeNotifier {
   }
 
   void completeHabit(Habit habit) {
-    habit.isCompleted = !habit.isCompleted;
-    if (habit.isCompleted) {
-      habit.isCompleted = true;
-      habits.remove(habit);
-      _completedHabits.add(habit);
+    // habit.isCompleted = !habit.isCompleted;
+    // if (habit.isCompleted) {
+    //   habit.isCompleted = true;
+    //   habits.remove(habit);
+    //   _completedHabits.add(habit);
+    // } else {
+    //   habit.isCompleted = false;
+    //   _completedHabits.remove(habit);
+    //   habits.add(habit);
+    // }
+
+    final today = DateTime.now();
+    final dateExists = habit.completion.any((d) =>
+        d.year == today.year && d.month == today.month && d.day == today.day);
+
+    if (dateExists) {
+      habit.completion.removeWhere((d) =>
+          d.year == today.year && d.month == today.month && d.day == today.day);
     } else {
-      habit.isCompleted = false;
-      _completedHabits.remove(habit);
-      habits.add(habit);
+      habit.completion.add(today);
     }
+
     notifyListeners();
   }
 
   void removeHabit(Habit habit) {
     _habits.remove(habit);
     notifyListeners();
+  }
+
+  List<Habit> getHabitsByDate(DateTime date) {
+    return _habits.where((habit) =>
+      habit.startDate.year == date.year &&
+      habit.startDate.month == date.month &&
+      habit.startDate.day == date.day
+    ).toList();
   }
 }

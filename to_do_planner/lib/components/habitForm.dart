@@ -20,8 +20,7 @@ class HabitForm extends StatefulWidget {
 class _HabitFormState extends State<HabitForm> {
   final _formKey = GlobalKey<FormState>();
   final _habitController = TextEditingController();
-  final _timeController = TextEditingController();
-  // DateTime? _selectedDate;
+  DateTime? _startDate;
   Category? _selectedCategory;
   String? _selectedReminder;
   String? _selectedRepeat;
@@ -35,8 +34,7 @@ class _HabitFormState extends State<HabitForm> {
       _selectedCategory = _categories.firstWhere(
         (category) => category == widget.habit!.category,
       );
-      // _selectedDate = widget.habit!.date;
-      _timeController.text = widget.habit!.time;
+      _startDate = widget.habit!.startDate;
       _reminderEnabled = widget.habit!.reminder != null;
       _selectedReminder = widget.habit!.reminder;
     }
@@ -99,7 +97,7 @@ class _HabitFormState extends State<HabitForm> {
         title: _habitController.text,
         category: _selectedCategory,
         // date: _selectedDate!,
-        time: _timeController.text,
+        startDate: _startDate!,
         streak: 0,
         completion: [],
         reminder: _reminderEnabled ? _selectedReminder : null,
@@ -156,19 +154,19 @@ class _HabitFormState extends State<HabitForm> {
   //   'Yearly',
   // ];
 
-  // String formatTaskDate(DateTime taskDate) {
-  //   DateTime now = DateTime.now();
-  //   DateTime today = DateTime(now.year, now.month, now.day);
-  //   DateTime tomorrow = today.add(const Duration(days: 1));
+  String formatTaskDate(DateTime taskDate) {
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+    DateTime tomorrow = today.add(const Duration(days: 1));
 
-  //   if (taskDate.isAtSameMomentAs(today)) {
-  //     return "Today";
-  //   } else if (taskDate.isAtSameMomentAs(tomorrow)) {
-  //     return "Tomorrow";
-  //   } else {
-  //     return DateFormat("dd-MM-yyyy").format(taskDate);
-  //   }
-  // }
+    if (taskDate.isAtSameMomentAs(today)) {
+      return "Today";
+    } else if (taskDate.isAtSameMomentAs(tomorrow)) {
+      return "Tomorrow";
+    } else {
+      return DateFormat("dd-MM-yyyy").format(taskDate);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -243,119 +241,54 @@ class _HabitFormState extends State<HabitForm> {
           const SizedBox(
             height: 25,
           ),
-          // TextFormField(
-          //   controller: TextEditingController(
-          //     text: _selectedDate != null ? formatTaskDate(_selectedDate!) : '',
-          //   ),
-          //   readOnly: true,
-          //   cursorColor: Colors.white,
-          //   style: const TextStyle(color: Colors.white),
-          //   decoration: const InputDecoration(
-          //     hintText: "Select Date",
-          //     labelText: "Select Date",
-          //     hintStyle: TextStyle(color: Colors.white),
-          //     labelStyle: TextStyle(color: Colors.white),
-          //     suffixIcon: Icon(Icons.calendar_month),
-          //     suffixIconColor: Colors.white,
-          //   ),
-          //   onTap: () async {
-          //     DateTime? date = await showDatePicker(
-          //         builder: (context, child) => Theme(
-          //             data: ThemeData().copyWith(
-          //                 datePickerTheme: const DatePickerThemeData(
-          //                     headerBackgroundColor:
-          //                         Color.fromARGB(255, 5, 46, 80),
-          //                     headerForegroundColor: Colors.white,
-          //                     cancelButtonStyle: ButtonStyle(
-          //                         foregroundColor:
-          //                             WidgetStatePropertyAll(Colors.white)),
-          //                     confirmButtonStyle: ButtonStyle(
-          //                         foregroundColor:
-          //                             WidgetStatePropertyAll(Colors.white)),
-          //                     backgroundColor: Color.fromARGB(255, 0, 82, 223),
-          //                     dividerColor: Color.fromARGB(255, 5, 46, 80)),
-          //                 colorScheme: const ColorScheme.light(
-          //                   primary: Colors.blueAccent,
-          //                   onPrimary: Colors.white,
-          //                   onSurface: Colors.white,
-          //                 )),
-          //             child: child!),
-          //         context: context,
-          //         initialDate: _selectedDate ?? DateTime.now(),
-          //         firstDate: DateTime(2024),
-          //         lastDate: DateTime(2100));
-          //     if (date != null) {
-          //       setState(() {
-          //         _selectedDate = date;
-          //       });
-          //     }
-          //   },
-          // ),
           TextFormField(
-            controller: _timeController,
+            controller: TextEditingController(
+              text: _startDate != null ? formatTaskDate(_startDate!) : '',
+            ),
             readOnly: true,
             cursorColor: Colors.white,
             style: const TextStyle(color: Colors.white),
             decoration: const InputDecoration(
-              hintText: "Select Time",
-              labelText: "Select Time",
+              hintText: "Select Date",
+              labelText: "Select Date",
               hintStyle: TextStyle(color: Colors.white),
               labelStyle: TextStyle(color: Colors.white),
-              suffixIcon: Icon(Icons.timer_sharp),
+              suffixIcon: Icon(Icons.calendar_month),
               suffixIconColor: Colors.white,
             ),
             onTap: () async {
-              TimeOfDay? time = await showTimePicker(
-                builder: (context, child) => Theme(
-                    data: ThemeData().copyWith(
-                        timePickerTheme: const TimePickerThemeData(
-                            backgroundColor: Color.fromARGB(255, 5, 46, 80),
-                            dialBackgroundColor:
-                                Color.fromARGB(255, 0, 82, 223),
-                            dialHandColor: Colors.blueAccent,
-                            entryModeIconColor: Colors.white,
-                            cancelButtonStyle: ButtonStyle(
-                                foregroundColor:
-                                    WidgetStatePropertyAll(Colors.white)),
-                            confirmButtonStyle: ButtonStyle(
-                                foregroundColor:
-                                    WidgetStatePropertyAll(Colors.white)),
-                            hourMinuteTextColor: Colors.white,
-                            helpTextStyle: TextStyle(
-                              color: Colors.white,
-                            ),
-                            hourMinuteColor: Color.fromARGB(255, 0, 82, 223),
-                            dayPeriodColor: Color.fromARGB(255, 0, 82, 223),
-                            dayPeriodTextColor: Colors.white),
-                        colorScheme: const ColorScheme.light(
-                          onSurface: Colors.white,
-                          primary: Colors.blueAccent,
-                          onPrimary: Colors.white,
-                        )),
-                    child: child!),
-                context: context,
-                initialTime: TimeOfDay.now(),
-              );
-              if (time!.hour == 0 && time.minute != 0) {
-                _timeController.text = "12:${time.minute} AM";
-              } else if (time.hour == 0 && time.minute == 0) {
-                _timeController.text = "12:${time.minute}0 AM";
-              } else if (time.hour < 12 && time.minute != 0) {
-                _timeController.text = "${time.hour}:${time.minute} AM";
-              } else if (time.hour < 12 && time.minute == 0) {
-                _timeController.text = "${time.hour}:${time.minute}0 AM";
-              } else if (time.hour == 12 && time.minute != 0) {
-                _timeController.text = "${time.hour}:${time.minute} PM";
-              } else if (time.hour == 12 && time.minute == 0) {
-                _timeController.text = "${time.hour}:${time.minute}0 PM";
-              } else if (time.hour > 12 && time.minute != 0) {
-                _timeController.text = "${time.hour - 12}:${time.minute} PM";
-              } else if (time.hour > 12 && time.minute == 0) {
-                _timeController.text = "${time.hour - 12}:${time.minute}0 PM";
+              DateTime? date = await showDatePicker(
+                  builder: (context, child) => Theme(
+                      data: ThemeData().copyWith(
+                          datePickerTheme: const DatePickerThemeData(
+                              headerBackgroundColor:
+                                  Color.fromARGB(255, 5, 46, 80),
+                              headerForegroundColor: Colors.white,
+                              cancelButtonStyle: ButtonStyle(
+                                  foregroundColor:
+                                      WidgetStatePropertyAll(Colors.white)),
+                              confirmButtonStyle: ButtonStyle(
+                                  foregroundColor:
+                                      WidgetStatePropertyAll(Colors.white)),
+                              backgroundColor: Color.fromARGB(255, 0, 82, 223),
+                              dividerColor: Color.fromARGB(255, 5, 46, 80)),
+                          colorScheme: const ColorScheme.light(
+                            primary: Colors.blueAccent,
+                            onPrimary: Colors.white,
+                            onSurface: Colors.white,
+                          )),
+                      child: child!),
+                  context: context,
+                  initialDate: _startDate ?? DateTime.now(),
+                  firstDate: DateTime(2024),
+                  lastDate: DateTime(2100));
+              if (date != null) {
+                setState(() {
+                  _startDate = date;
+                });
               }
-              log(time.toString());
             },
-          ),
+          ),        
           const SizedBox(
             height: 30,
           ),
@@ -462,8 +395,7 @@ class _HabitFormState extends State<HabitForm> {
                             category: _selectedCategory,
                             completion: [],
                             streak: 0,
-                            // date: _selectedDate!,
-                            time: _timeController.text,
+                            startDate: _startDate!,
                             reminder: _selectedReminder,
                           );
                           Provider.of<HabitProvider>(context, listen: false)

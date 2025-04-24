@@ -112,7 +112,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
                           child: Checkbox(
                             shape: const CircleBorder(
                               side: BorderSide(width: 1.0)),
-                            value: habit.isCompleted,
+                            value: habit.isCompletedToday(),
                             onChanged: (value) {
                               setState(() {
                                 habitProvider.completeHabit(habit);
@@ -124,17 +124,17 @@ class _HabitsScreenState extends State<HabitsScreen> {
                         title: Text(
                           habit.title,
                           style: TextStyle(
-                            color: habit.isCompleted ? Colors.grey : Colors.white,
+                            color: habit.isCompletedToday() ? Colors.grey : Colors.white,
                             fontSize: 18,
-                            decoration: habit.isCompleted
+                            decoration: habit.isCompletedToday()
                               ? TextDecoration.lineThrough : TextDecoration.none,
                           ),
                         ),
-                        subtitle: Text("Streak: ${habit.streak}",
+                        subtitle: Text("Streak: ${habit.getStreak()} days",
                           style: const TextStyle(color: Color.fromARGB(255, 103, 153, 239))),
                         trailing: Icon(
                           habit.category?.icon,
-                          color: habit.isCompleted ? Colors.grey : Colors.white,
+                          color: habit.isCompletedToday() ? Colors.grey : Colors.white,
                         ),
                         onTap: () {
                           Navigator.of(context).pushReplacement(
