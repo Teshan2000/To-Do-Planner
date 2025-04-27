@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:to_do_planner/models/habit.dart';
+import 'package:to_do_planner/models/task.dart';
 import 'package:to_do_planner/providers/habitProvider.dart';
 import 'package:to_do_planner/providers/notificationService.dart';
 import 'package:to_do_planner/providers/taskProvider.dart';
@@ -8,6 +12,16 @@ import 'package:to_do_planner/screens/home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final appDocumentDir = await getApplicationDocumentsDirectory();
+  Hive.init(appDocumentDir.path);
+  // await Hive.initFlutter();
+  
+  Hive.registerAdapter(TaskAdapter());
+  Hive.registerAdapter(HabitAdapter());
+
+  await Hive.openBox<Task>('tasks'); 
+  await Hive.openBox<Habit>('habits');  
 
   await NotificationService.initNotification();
   tz.initializeTimeZones();
