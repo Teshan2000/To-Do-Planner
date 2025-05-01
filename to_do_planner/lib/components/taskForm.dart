@@ -116,8 +116,9 @@ class _TaskFormState extends State<TaskForm> {
 
       if (_reminderEnabled) {
         NotificationService.scheduleNotification(
-          title: "Task Reminder",
-          body: "Reminder for: ${_taskController.text}",
+          title: _taskController.text,
+          body: _timeController.text,
+          category: _selectedCategory?.icon,
           scheduledDate: taskDateTime,
           repeat: _selectedRepeat,
         );

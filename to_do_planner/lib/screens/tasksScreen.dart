@@ -4,9 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:to_do_planner/components/taskForm.dart';
 import 'package:to_do_planner/providers/taskProvider.dart';
-import 'package:to_do_planner/screens/calendar.dart';
 import 'package:to_do_planner/screens/editTasks.dart';
-import 'package:to_do_planner/screens/newCalendar.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -44,6 +42,10 @@ class _TasksScreenState extends State<TasksScreen> {
           "Tasks",
           style: TextStyle(color: Colors.white),
         ),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(15),
+                bottomRight: Radius.circular(15))),
         backgroundColor: const Color.fromARGB(255, 15, 79, 189),
       ),
       body: Consumer<TaskProvider>(
@@ -56,8 +58,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
-                    final task = taskProvider.tasks[index];
-                    final formattedDate = formatTaskDate(task.date);
+                    final task = taskProvider.tasks[index];                    
                     return Dismissible(
                       key: Key(index.toString()),
                       background: Container(
@@ -150,7 +151,7 @@ class _TasksScreenState extends State<TasksScreen> {
                           ),
                         ),
                         subtitle: Text(
-                          "${DateFormat("yyyy-MM-dd").format(task.date)}, ${task.time}",
+                          "${formatTaskDate(task.date)}, ${task.time}",
                           style: const TextStyle(
                               color: Color.fromARGB(255, 103, 153, 239)),
                         ),
@@ -298,7 +299,7 @@ class _TasksScreenState extends State<TasksScreen> {
                           ),
                         ),
                         subtitle: Text(
-                          "${task.date}, ${task.time}",
+                          "${formatTaskDate(task.date)}, ${task.time}",
                           style: const TextStyle(
                               color: Color.fromARGB(255, 103, 153, 239)),
                         ),
