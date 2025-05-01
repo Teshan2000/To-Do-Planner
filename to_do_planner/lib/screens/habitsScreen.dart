@@ -24,7 +24,10 @@ class _HabitsScreenState extends State<HabitsScreen> {
           style: TextStyle(color: Colors.white),
         ),
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15), bottomRight: Radius.circular(15))
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(15), 
+            bottomRight: Radius.circular(15)
+          )
         ),
         backgroundColor: const Color.fromARGB(255, 15, 79, 189),
       ),
@@ -112,10 +115,10 @@ class _HabitsScreenState extends State<HabitsScreen> {
                           child: Checkbox(
                             shape: const CircleBorder(
                               side: BorderSide(width: 1.0)),
-                            value: habit.isCompletedToday(),
+                            value: habit.isCompleted,
                             onChanged: (value) {
                               setState(() {
-                                habitProvider.completeHabit(habit);
+                                habitProvider.completeHabit(habit, DateTime.now());
                                 isCompleted = true;
                               });
                             }
@@ -124,9 +127,9 @@ class _HabitsScreenState extends State<HabitsScreen> {
                         title: Text(
                           habit.title,
                           style: TextStyle(
-                            color: habit.isCompletedToday() ? Colors.grey : Colors.white,
+                            color: habit.isCompleted ? Colors.grey : Colors.white,
                             fontSize: 18,
-                            decoration: habit.isCompletedToday()
+                            decoration: habit.isCompleted
                               ? TextDecoration.lineThrough : TextDecoration.none,
                           ),
                         ),
@@ -134,7 +137,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
                           style: const TextStyle(color: Color.fromARGB(255, 103, 153, 239))),
                         trailing: Icon(
                           habit.category?.icon,
-                          color: habit.isCompletedToday() ? Colors.grey : Colors.white,
+                          color: habit.isCompleted ? Colors.grey : Colors.white,
                         ),
                         onTap: () {
                           Navigator.of(context).pushReplacement(
@@ -243,10 +246,10 @@ class _HabitsScreenState extends State<HabitsScreen> {
                           child: Checkbox(
                             shape: const CircleBorder(
                               side: BorderSide(width: 1.0)),
-                            value: habit.isCompleted,
+                            value: habit.isCompletedToday(),
                             onChanged: (value) {
                               setState(() {
-                                habitProvider.completeHabit(habit);
+                                habitProvider.completeHabit(habit, DateTime.now());
                                 isCompleted = true;
                               });
                             }
@@ -255,17 +258,17 @@ class _HabitsScreenState extends State<HabitsScreen> {
                         title: Text(
                           habit.title,
                           style: TextStyle(
-                            color: habit.isCompleted ? Colors.grey : Colors.white,
+                            color: habit.isCompletedToday() ? Colors.grey : Colors.white,
                             fontSize: 18,
-                            decoration: habit.isCompleted
+                            decoration: habit.isCompletedToday()
                               ? TextDecoration.lineThrough : TextDecoration.none,
                           ),
                         ),
-                        subtitle: Text("Streak: ${habit.streak}",
+                        subtitle: Text("Streak: ${habit.getStreak()} days",
                           style: const TextStyle(color: Color.fromARGB(255, 103, 153, 239))),
                         trailing: Icon(
                           habit.category?.icon,
-                          color: habit.isCompleted ? Colors.grey : Colors.white,
+                          color: habit.isCompletedToday() ? Colors.grey : Colors.white,
                         ),
                         onTap: () {
                           Navigator.of(context).pushReplacement(

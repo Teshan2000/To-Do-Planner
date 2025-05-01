@@ -104,7 +104,7 @@ class _HabitFormState extends State<HabitForm> {
       );
 
       if (widget.habit != null) {
-        habitProvider.updateHabit(widget.habit!, newHabit);
+        habitProvider.updateHabit(widget.habit as int, newHabit);
       } else {
         habitProvider.addHabit(newHabit);
       }
@@ -399,7 +399,7 @@ class _HabitFormState extends State<HabitForm> {
                             reminder: _selectedReminder,
                           );
                           Provider.of<HabitProvider>(context, listen: false)
-                              .updateHabit(widget.habit!, updatedHabit);
+                              .updateHabit(widget.habit! as int, updatedHabit);
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
                                   builder: (context) => const Home()));

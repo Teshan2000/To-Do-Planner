@@ -1,13 +1,30 @@
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:to_do_planner/models/category.dart';
 
-class Habit {
-  final String title;
-  final DateTime startDate;
-  final Category? category;
-  final List<DateTime> completion;
-  final int streak;
-  final String? reminder;
-  bool isCompleted;
+part 'habit.g.dart';
+
+@HiveType(typeId: 1)
+class Habit extends HiveObject {
+  @HiveField(0)
+  late String title;
+
+  @HiveField(1)
+  late DateTime startDate;
+
+  @HiveField(2)
+  late Category? category;
+
+  @HiveField(3)
+  late List<DateTime> completion;
+
+  @HiveField(4)
+  late int streak;
+
+  @HiveField(5)
+  late String? reminder;
+
+  @HiveField(6)
+  late bool isCompleted;
 
   Habit({
     required this.title,

@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:to_do_planner/models/category.dart';
 import 'package:to_do_planner/models/habit.dart';
 import 'package:to_do_planner/models/task.dart';
 import 'package:to_do_planner/providers/habitProvider.dart';
@@ -19,6 +20,7 @@ void main() async {
   
   Hive.registerAdapter(TaskAdapter());
   Hive.registerAdapter(HabitAdapter());
+  Hive.registerAdapter(CategoryAdapter());
 
   await Hive.openBox<Task>('tasks'); 
   await Hive.openBox<Habit>('habits');  
