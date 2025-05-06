@@ -3,8 +3,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:to_do_planner/screens/calendar.dart';
 import 'package:to_do_planner/screens/habitsScreen.dart';
-// import 'package:to_do_planner/screens/newCalendar.dart';
 import 'package:to_do_planner/screens/tasksScreen.dart';
+import 'package:to_do_planner/screens/today.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -21,8 +21,10 @@ class _HomeState extends State<Home> {
   bool isCompleted = false;
 
   final List<Widget> _pages = [
+    const Today(),
     const TasksScreen(),
     const HabitsScreen(),
+    const Calendar()
   ];
 
   String formatTaskDate(DateTime taskDate) {
@@ -53,7 +55,7 @@ class _HomeState extends State<Home> {
             onPressed: () {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => Calendar()));
+                  builder: (context) => const Calendar()));
             }, 
             icon: const Icon(Icons.calendar_month),
             color: Colors.white,
@@ -72,17 +74,31 @@ class _HomeState extends State<Home> {
             selectedItemColor: Colors.white,
             unselectedItemColor: const Color.fromARGB(255, 103, 153, 239),
             currentIndex: _selectedIndex,
+            type: BottomNavigationBarType.fixed,
             items: const [
               BottomNavigationBarItem(
-                icon: Icon(Icons.task_outlined),
-                activeIcon: Icon(Icons.task),
+                icon: Icon(Icons.view_list_outlined),
+                activeIcon: Icon(Icons.view_list),
+                label: "Today",
+                tooltip: "Today",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.check_circle_outlined),
+                activeIcon: Icon(Icons.check_circle),
                 label: "Tasks",
                 tooltip: "Tasks",
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.track_changes),
+                icon: Icon(Icons.track_changes_outlined),
+                activeIcon: Icon(Icons.track_changes),
                 label: "Habits",
                 tooltip: "Habits",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_month_outlined),
+                activeIcon: Icon(Icons.calendar_month),
+                label: "Calendar",
+                tooltip: "Calendar",
               ),
             ],
             onTap: (index) {
