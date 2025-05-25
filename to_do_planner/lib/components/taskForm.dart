@@ -132,11 +132,12 @@ class _TaskFormState extends State<TaskForm> {
 
   final List<Category> _categories = [
     Category(name: 'Personal', icon: Icons.person),
-    Category(name: 'Work', icon: Icons.work),
-    Category(name: 'Health', icon: Icons.health_and_safety),
     Category(name: 'Home', icon: Icons.home),
-    Category(name: 'Education', icon: Icons.menu_book),
+    Category(name: 'Work', icon: Icons.work),  
     Category(name: 'Food', icon: Icons.fastfood),
+    Category(name: 'Health', icon: Icons.health_and_safety),
+    Category(name: 'Finance', icon: Icons.monetization_on),
+    Category(name: 'Education', icon: Icons.menu_book),    
     Category(name: 'Transport', icon: Icons.train),
     Category(name: 'Shopping', icon: Icons.shopping_cart),
     Category(name: 'Leisure', icon: Icons.sports_esports),
