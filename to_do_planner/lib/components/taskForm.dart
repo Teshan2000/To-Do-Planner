@@ -118,7 +118,7 @@ class _TaskFormState extends State<TaskForm> {
         NotificationService.scheduleNotification(
           title: _taskController.text,
           body: _timeController.text,
-          category: _selectedCategory?.icon,
+          // category: _selectedCategory?.icon,
           scheduledDate: taskDateTime,
           repeat: _selectedRepeat,
         );
