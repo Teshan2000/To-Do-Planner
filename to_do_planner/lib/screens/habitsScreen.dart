@@ -19,18 +19,36 @@ class _HabitsScreenState extends State<HabitsScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 7, 36, 86),
       appBar: AppBar(
-        title: const Text(
-          "Habits",
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Padding(
+          padding: EdgeInsets.only(top: 20),
+          child: Text(
+            "Habits",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),        
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Icon(              
+              Icons.track_changes,
+              color: Colors.white,
+            ),
+          ),
+        ],
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(15), 
-            bottomRight: Radius.circular(15)
-          )
-        ),
+            bottomLeft: Radius.circular(15),
+            bottomRight: Radius.circular(15))),
         backgroundColor: const Color.fromARGB(255, 15, 79, 189),
-      ),
+        bottom: const PreferredSize(
+          preferredSize: Size(double.infinity, 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 3,
+            ),
+          ),
+        ),
+      ),      
       body: Consumer<HabitProvider>(
         builder: (context, habitProvider, _) {
           return SingleChildScrollView(
@@ -149,8 +167,12 @@ class _HabitsScreenState extends State<HabitsScreen> {
                   },
                   itemCount: habitProvider.habits.length,
                   separatorBuilder: (context, index) {
-                    return const Divider(
-                      color: Colors.white,
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Divider(
+                        height: 5,
+                        color: Colors.white,
+                      ),
                     );
                   },
                 ),
@@ -280,8 +302,12 @@ class _HabitsScreenState extends State<HabitsScreen> {
                   },
                   itemCount: habitProvider.completedHabits.length,
                   separatorBuilder: (context, index) {
-                    return const Divider(
-                      color: Colors.white,
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Divider(
+                        height: 5,
+                        color: Colors.white,
+                      ),
                     );
                   },
                 ),
@@ -320,7 +346,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
             )
           );
         },
-        shape: const CircleBorder(side: BorderSide.none),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
         child: const Icon(
           Icons.add,
           color: Colors.white,

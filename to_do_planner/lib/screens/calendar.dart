@@ -6,7 +6,6 @@ import 'package:to_do_planner/models/habit.dart';
 import 'package:to_do_planner/models/task.dart';
 import 'package:to_do_planner/providers/habitProvider.dart';
 import 'package:to_do_planner/providers/taskProvider.dart';
-import 'package:to_do_planner/screens/home.dart';
 
 class Calendar extends StatefulWidget {
   const Calendar({super.key});
@@ -29,8 +28,7 @@ class _CalendarState extends State<Calendar> {
     } else if (taskDate.isAtSameMomentAs(tomorrow)) {
       return "Tomorrow";
     } else {
-      return DateFormat("dd-MM-yyyy")
-          .format(taskDate); // Format for other dates
+      return DateFormat("dd-MM-yyyy").format(taskDate);
     }
   }
 
@@ -56,21 +54,36 @@ class _CalendarState extends State<Calendar> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 7, 36, 86),
       appBar: AppBar(
+        title: const Padding(
+          padding: EdgeInsets.only(top: 20),
+          child: Text(
+            "Calendar",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),        
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Icon(              
+              Icons.calendar_month,
+              color: Colors.white,
+            ),
+          ),
+        ],
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(15),
+            bottomRight: Radius.circular(15))),
         backgroundColor: const Color.fromARGB(255, 15, 79, 189),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const Home()));
-          },
-          icon: const Icon(Icons.arrow_back),
-          color: Colors.white,
+        bottom: const PreferredSize(
+          preferredSize: Size(double.infinity, 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 3,
+            ),
+          ),
         ),
-        centerTitle: true,
-        title: const Text(
-          'Task Calendar',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+      ), 
       body: Column(
         children: [
           TableCalendar(
@@ -85,6 +98,7 @@ class _CalendarState extends State<Calendar> {
                 _focusedDay = focusedDay;
               });
             },
+            startingDayOfWeek: StartingDayOfWeek.monday,
             eventLoader: (day) => getEventsByDate(day),
             headerStyle: const HeaderStyle(
               titleTextStyle: TextStyle(color: Colors.white),
@@ -105,6 +119,11 @@ class _CalendarState extends State<Calendar> {
                 color: Colors.white,
                 shape: BoxShape.circle,
               ),
+              todayDecoration: BoxDecoration(
+                color: Colors.blueAccent,
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.all(Radius.circular(10))
+              ),
               selectedDecoration: BoxDecoration(
                 color: Colors.blueAccent,
                 shape: BoxShape.circle,
@@ -122,7 +141,7 @@ class _CalendarState extends State<Calendar> {
                     title: Text(task.title,
                       style: const TextStyle(color: Colors.white)),
                     subtitle: Text("${formatTaskDate(task.date)}, ${task.time}",
-                      style: const TextStyle(color: Colors.grey)),
+                      style: const TextStyle(color: Color.fromARGB(255, 103, 153, 239))),
                     trailing: Icon(task.category?.icon, color: Colors.white),
                   );
                 } else if (event['type'] == 'habit') {
@@ -131,8 +150,8 @@ class _CalendarState extends State<Calendar> {
                     // leading: Icon(habit.category?.icon, color: Colors.white),
                     title: Text(habit.title,
                       style: const TextStyle(color: Colors.white)),
-                    subtitle: Text("${formatTaskDate(habit.startDate)}",
-                      style: const TextStyle(color: Colors.grey)),
+                    subtitle: Text(formatTaskDate(habit.startDate),
+                      style: const TextStyle(color: Color.fromARGB(255, 103, 153, 239))),
                     trailing: Icon(habit.category?.icon, color: Colors.white),
                   );
                 }

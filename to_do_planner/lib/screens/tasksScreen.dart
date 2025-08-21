@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -38,15 +39,35 @@ class _TasksScreenState extends State<TasksScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 7, 36, 86),
       appBar: AppBar(
-        title: const Text(
-          "Tasks",
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Padding(
+          padding: EdgeInsets.only(top: 20),
+          child: Text(
+            "Tasks",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),        
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Icon(              
+              Icons.check_circle,
+              color: Colors.white,
+            ),
+          ),
+        ],
         shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(15),
-                bottomRight: Radius.circular(15))),
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(15),
+            bottomRight: Radius.circular(15))),
         backgroundColor: const Color.fromARGB(255, 15, 79, 189),
+        bottom: const PreferredSize(
+          preferredSize: Size(double.infinity, 15),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 3,
+            ),
+          ),
+        ),
       ),
       body: Consumer<TaskProvider>(
         builder: (context, taskProvider, _) {
@@ -58,7 +79,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
-                    final task = taskProvider.tasks[index];                    
+                    final task = taskProvider.tasks[index];
                     return Dismissible(
                       key: Key(index.toString()),
                       background: Container(
@@ -79,8 +100,7 @@ class _TasksScreenState extends State<TasksScreen> {
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 15, 79, 189),
+                                  backgroundColor: const Color.fromARGB(255, 15, 79, 189),
                                   title: Text(
                                     "Delete ${task.title} ?",
                                     style: const TextStyle(
@@ -119,6 +139,7 @@ class _TasksScreenState extends State<TasksScreen> {
                               MaterialPageRoute(
                                   builder: (context) => Edittasks(task: task)));
                         }
+                        return null;
                       },
                       onDismissed: (direction) {
                         if (direction == DismissDirection.endToStart) {
@@ -169,8 +190,12 @@ class _TasksScreenState extends State<TasksScreen> {
                   },
                   itemCount: taskProvider.tasks.length,
                   separatorBuilder: (context, index) {
-                    return const Divider(
-                      color: Colors.white,
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Divider(
+                        height: 5,
+                        color: Colors.white,
+                      ),
                     );
                   },
                 ),
@@ -267,6 +292,7 @@ class _TasksScreenState extends State<TasksScreen> {
                               MaterialPageRoute(
                                   builder: (context) => Edittasks(task: task)));
                         }
+                        return null;
                       },
                       onDismissed: (direction) {
                         if (direction == DismissDirection.endToStart) {
@@ -322,8 +348,12 @@ class _TasksScreenState extends State<TasksScreen> {
                   },
                   itemCount: taskProvider.completedTasks.length,
                   separatorBuilder: (context, index) {
-                    return const Divider(
-                      color: Colors.white,
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Divider(
+                        height: 5,
+                        color: Colors.white,
+                      ),
                     );
                   },
                 ),
@@ -364,7 +394,8 @@ class _TasksScreenState extends State<TasksScreen> {
                     ),
                   ));
         },
-        shape: const CircleBorder(side: BorderSide.none),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10))),
         child: const Icon(
           Icons.add,
           color: Colors.white,

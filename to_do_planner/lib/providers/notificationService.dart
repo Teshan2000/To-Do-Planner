@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -37,6 +38,13 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       playSound: true,
+      largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+      styleInformation: BigTextStyleInformation(''),
+      actions: <AndroidNotificationAction>[
+        AndroidNotificationAction('done_action', 'Done'),
+        AndroidNotificationAction('dismiss_action', 'Dismiss'),
+        AndroidNotificationAction('postpone_action', 'Postpone'),
+      ]
     ));
 
     await flutterLocalNotificationsPlugin.show(
@@ -46,6 +54,7 @@ class NotificationService {
   static Future<void> scheduleNotification(
       {String? title,
       String? body,
+      IconData? category,
       DateTime? scheduledDate,
       String? repeat}) async {
     const NotificationDetails platformChannelSpecifics = NotificationDetails(
@@ -56,6 +65,14 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       playSound: true,
+      icon: '',
+      largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+      styleInformation: BigTextStyleInformation(''),
+      actions: <AndroidNotificationAction>[
+        AndroidNotificationAction('done_action', 'Done'),
+        AndroidNotificationAction('dismiss_action', 'Dismiss'),
+        AndroidNotificationAction('postpone_action', 'Postpone'),
+      ]
     ));
 
     DateTimeComponents? repeatInterval;
