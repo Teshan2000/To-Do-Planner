@@ -63,7 +63,7 @@ class _CalendarState extends State<Calendar> {
         ),        
         actions: const [
           Padding(
-            padding: EdgeInsets.only(top: 20),
+            padding: EdgeInsets.only(top: 20, right: 15),
             child: Icon(              
               Icons.calendar_month,
               color: Colors.white,
@@ -122,11 +122,12 @@ class _CalendarState extends State<Calendar> {
               todayDecoration: BoxDecoration(
                 color: Colors.blueAccent,
                 shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.all(Radius.circular(10))
+                borderRadius: BorderRadius.all(Radius.circular(10)),
               ),
               selectedDecoration: BoxDecoration(
-                color: Colors.blueAccent,
-                shape: BoxShape.circle,
+                color: Color.fromARGB(255, 103, 153, 239),
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
               ),
             ),
           ),

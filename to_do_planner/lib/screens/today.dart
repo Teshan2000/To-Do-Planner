@@ -6,6 +6,8 @@ import 'package:to_do_planner/components/completedHabitsList.dart';
 import 'package:to_do_planner/components/completedTasksList.dart';
 import 'package:to_do_planner/components/habitsList.dart';
 import 'package:to_do_planner/components/tasksList.dart';
+import 'package:to_do_planner/models/habit.dart';
+import 'package:to_do_planner/models/task.dart';
 import 'package:to_do_planner/providers/habitProvider.dart';
 import 'package:to_do_planner/providers/taskProvider.dart';
 
@@ -17,6 +19,8 @@ class Today extends StatefulWidget {
 }
 
 class _TodayState extends State<Today> {
+  String selectedFilter = 'All';
+  String? selectedCategory;
   bool isCompleted = false;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -34,6 +38,49 @@ class _TodayState extends State<Today> {
     } else {
       return DateFormat("dd-MM-yyyy").format(taskDate);
     }
+  }
+
+  Widget _buildFilterChip(String label) {
+    final isSelected = selectedFilter == label;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: ChoiceChip(
+        showCheckmark: false,
+        label: Text(label),
+        selected: isSelected,
+        selectedColor: const Color.fromARGB(255, 15, 79, 189),
+        backgroundColor: Colors.grey[200],
+        labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black),
+        onSelected: (_) => _applyFilter(label),
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(String categoryName) {
+    final isSelected = selectedCategory == categoryName;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: ChoiceChip(
+        showCheckmark: false,
+        label: Text(categoryName),
+        selected: isSelected,
+        selectedColor: Colors.blueAccent,
+        backgroundColor: Colors.grey[200],
+        labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black),
+        onSelected: (_) {
+          setState(() {
+            selectedCategory = isSelected ? null : categoryName; // toggle
+          });
+        },
+      ),
+    );
+  }
+
+  void _applyFilter(String filter) {
+    setState(() {
+      selectedFilter = filter;
+    });
   }
 
   @override
@@ -55,6 +102,26 @@ class _TodayState extends State<Today> {
       return [...tasks, ...habits];
     }
 
+    List<dynamic> filteredItems;
+    if (selectedFilter == 'Tasks') {
+      filteredItems = taskProvider.tasks;
+    } else if (selectedFilter == 'Habits') {
+      filteredItems = habitProvider.habits;
+    } else {
+      filteredItems = [...taskProvider.tasks, ...habitProvider.habits];
+    }
+
+    if (selectedCategory != null) {
+      filteredItems = filteredItems.where((item) {
+        if (item is Task) {
+          return item.category?.name == selectedCategory;
+        } else if (item is Habit) {
+          return item.category?.name == selectedCategory;
+        }
+        return false;
+      }).toList();
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 7, 36, 86),
       appBar: AppBar(
@@ -64,20 +131,20 @@ class _TodayState extends State<Today> {
             "Today",
             style: TextStyle(color: Colors.white),
           ),
-        ),        
+        ),
         actions: const [
           Padding(
-            padding: EdgeInsets.only(top: 20),
-            child: Icon(              
+            padding: EdgeInsets.only(top: 20, right: 15),
+            child: Icon(
               Icons.view_list,
               color: Colors.white,
             ),
           ),
         ],
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(15),
-            bottomRight: Radius.circular(15))),
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(15),
+                bottomRight: Radius.circular(15))),
         backgroundColor: const Color.fromARGB(255, 15, 79, 189),
         bottom: const PreferredSize(
           preferredSize: Size(double.infinity, 15),
@@ -93,100 +160,96 @@ class _TodayState extends State<Today> {
           return SingleChildScrollView(
             child: Column(children: [
               const SizedBox(height: 20),
-              TableCalendar(
-                focusedDay: _focusedDay,
-                firstDay: DateTime(2000),
-                lastDay: DateTime(2100),
-                calendarFormat: _calendarFormat,
-                startingDayOfWeek: StartingDayOfWeek.monday,
-                headerVisible: false,
-                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                  });
-                },
-                // headerStyle: const HeaderStyle(
-                //   titleTextStyle: TextStyle(color: Colors.white),
-                //   formatButtonTextStyle: TextStyle(color: Colors.white),
-                //   decoration: BoxDecoration(
-                //     color: Color.fromARGB(255, 5, 46, 80),
-                //     borderRadius: BorderRadius.all(Radius.circular(10)),
-                //   ),
-                // ),
-                eventLoader: (day) => getEventsByDate(day),
-                daysOfWeekStyle: const DaysOfWeekStyle(
-                  weekdayStyle: TextStyle(color: Colors.white),
-                  weekendStyle: TextStyle(color: Colors.white),
-                ),
-                calendarStyle: const CalendarStyle(
-                  isTodayHighlighted: true,
-                  defaultTextStyle: TextStyle(color: Colors.white),
-                  weekendTextStyle: TextStyle(color: Colors.white),
-                  markerDecoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: TableCalendar(
+                  focusedDay: _focusedDay,
+                  firstDay: DateTime(2000),
+                  lastDay: DateTime(2100),
+                  calendarFormat: _calendarFormat,
+                  startingDayOfWeek: StartingDayOfWeek.monday,
+                  headerVisible: false,
+                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                  onDaySelected: (selectedDay, focusedDay) {
+                    setState(() {
+                      _selectedDay = selectedDay;
+                      _focusedDay = focusedDay;
+                    });
+                  },
+                  // headerStyle: const HeaderStyle(
+                  //   titleTextStyle: TextStyle(color: Colors.white),
+                  //   formatButtonTextStyle: TextStyle(color: Colors.white),
+                  //   decoration: BoxDecoration(
+                  //     color: Color.fromARGB(255, 5, 46, 80),
+                  //     borderRadius: BorderRadius.all(Radius.circular(10)),
+                  //   ),
+                  // ),
+                  eventLoader: (day) => getEventsByDate(day),
+                  daysOfWeekStyle: const DaysOfWeekStyle(
+                    weekdayStyle: TextStyle(color: Colors.white),
+                    weekendStyle: TextStyle(color: Colors.white),
                   ),
-                  todayDecoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.all(Radius.circular(10))
-                  ),
-                  selectedDecoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    shape: BoxShape.circle,
+                  calendarStyle: const CalendarStyle(
+                    isTodayHighlighted: true,
+                    defaultTextStyle: TextStyle(color: Colors.white),
+                    weekendTextStyle: TextStyle(color: Colors.white),
+                    markerDecoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    todayDecoration: BoxDecoration(
+                      color: Colors.blueAccent,
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    selectedDecoration: BoxDecoration(
+                      color: Color.fromARGB(255, 103, 153, 239),
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
-              TodayTasksList(selectedDate: _selectedDay ?? DateTime.now()),
-              TodayHabitsList(selectedDate: _selectedDay ?? DateTime.now()),
-              CompletedTasksList(selectedDate: _selectedDay ?? DateTime.now()),
-              CompletedTodayHabitsList(selectedDate: _selectedDay ?? DateTime.now())
-            ]
-                // Expanded(
-                //   child: ListView(
-                //     children: getEventsByDate(_selectedDay ?? _focusedDay)
-                //         .map((event) {
-                //       if (event['type'] == 'task') {
-                //         Task task = event['data'];
-                //         return Dismissible(
-                //           key: Key(toString()),
-                //           child: ListTile(
-                //             // leading: Icon(task.category?.icon, color: Colors.white),
-                //             title: Text(task.title,
-                //                 style: const TextStyle(color: Colors.white)),
-                //             subtitle: Text("Task | ${task.time}",
-                //                 style: const TextStyle(
-                //                     color: Color.fromARGB(255, 103, 153, 239))),
-                //             trailing:
-                //                 Icon(task.category?.icon, color: Colors.white),
-                //           ),
-                //         );
-                //       } else if (event['type'] == 'habit') {
-                //         Habit habit = event['data'];
-                //         return ListTile(
-                //           // leading: Icon(habit.category?.icon, color: Colors.white),
-                //           title: Text(habit.title,
-                //               style: const TextStyle(color: Colors.white)),
-                //           subtitle: Text(
-                //               "Habit | ${formatTaskDate(habit.startDate)}",
-                //               style: const TextStyle(
-                //                   color: Color.fromARGB(255, 103, 153, 239))),
-                //           trailing:
-                //               Icon(habit.category?.icon, color: Colors.white),
-                //         );
-                //       }
-                //       return const SizedBox.shrink();
-                //     }).toList(),
-                //   ),
-                // ),
-                // ],
-            ),
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildFilterChip('All'),
+                      _buildFilterChip('Tasks'),
+                      _buildFilterChip('Habits'),
+                      ...taskProvider.tasks
+                        .map((task) => task.category?.name)
+                        .where((name) => name != null)
+                        .toSet()
+                        .map((name) => _buildCategoryChip(name!)),
+                      ...habitProvider.habits
+                        .map((habit) => habit.category?.name)
+                        .where((name) => name != null)
+                        .toSet()
+                        .map((name) => _buildCategoryChip(name!)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (selectedFilter == 'All' || selectedFilter == 'Tasks') ...[
+                TodayTasksList(selectedDate: _selectedDay ?? DateTime.now()),
+                CompletedTasksList(selectedDate: _selectedDay ?? DateTime.now()),
+              ],
+              if (selectedFilter == 'All' || selectedFilter == 'Habits') ...[
+                TodayHabitsList(selectedDate: _selectedDay ?? DateTime.now()),
+                CompletedTodayHabitsList(selectedDate: _selectedDay ?? DateTime.now()),
+              ],
+            ]                
+          ),
           );
         },
       ),
     );
   }
 }
+
+

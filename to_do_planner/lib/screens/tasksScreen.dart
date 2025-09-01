@@ -48,7 +48,7 @@ class _TasksScreenState extends State<TasksScreen> {
         ),        
         actions: const [
           Padding(
-            padding: EdgeInsets.only(top: 20),
+            padding: EdgeInsets.only(top: 20, right: 15),
             child: Icon(              
               Icons.check_circle,
               color: Colors.white,

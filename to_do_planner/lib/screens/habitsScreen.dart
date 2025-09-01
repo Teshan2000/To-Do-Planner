@@ -28,7 +28,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
         ),        
         actions: const [
           Padding(
-            padding: EdgeInsets.only(top: 20),
+            padding: EdgeInsets.only(top: 20, right: 15),
             child: Icon(              
               Icons.track_changes,
               color: Colors.white,
